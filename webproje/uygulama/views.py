@@ -68,3 +68,30 @@ def arac_guncelle(request, arac_id):
 
 def hakkımızda(request):
     return render(request, 'hakkımızda.html')
+
+
+@login_required
+def admin_musteriler(request):
+    musteriler = Musteri.objects.all()
+    paginator = Paginator(musteriler, 1)  # Sayfa başına 6 araç
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
+    return render(request, 'admin_musteriler.html', {'page_obj': page_obj})
+
+@login_required
+def musteri_sil(request, musteri_id):
+    musteri = get_object_or_404(Musteri, id=musteri_id)
+    musteri.delete()
+    return redirect('admin_musteriler')
+
+@login_required
+def bilgilerimi_guncelle(request):
+    musteri = Musteri.objects.get(kullanici_adi=request.user.username)
+    if request.method == 'POST':
+        form = MusteriForm(request.POST, instance=musteri)
+        if form.is_valid():
+            form.save()
+            return redirect('musteri_paneli')
+    else:
+        form = MusteriForm(instance=musteri)
+    return render(request, 'bilgilerimi_guncelle.html', {'form': form})
