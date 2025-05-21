@@ -19,4 +19,10 @@ from django.urls import path
 
 urlpatterns = [
     path('admin/', admin.site.urls),
+    path('arac_ekle/', views.arac_ekle, name='arac_ekle'),
+    path('arac_sil/<int:arac_id>/', views.arac_sil, name='arac_sil'),
+    path('arac_guncelle/<int:arac_id>/', views.arac_guncelle, name='arac_guncelle'),
+    path('admin_arac_liste/', views.admin_arac_liste, name='admin_arac_liste'),
+    path('admin_arac_sil/<int:arac_id>/', views.admin_arac_sil, name='admin_arac_sil'),
+
 ]
