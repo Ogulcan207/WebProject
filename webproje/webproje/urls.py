@@ -24,5 +24,9 @@ urlpatterns = [
     path('arac_guncelle/<int:arac_id>/', views.arac_guncelle, name='arac_guncelle'),
     path('admin_arac_liste/', views.admin_arac_liste, name='admin_arac_liste'),
     path('admin_arac_sil/<int:arac_id>/', views.admin_arac_sil, name='admin_arac_sil'),
+    path('admin_musteriler/', views.admin_musteriler, name='admin_musteriler'),
+    path('musteri_sil/<int:musteri_id>/', views.musteri_sil, name='musteri_sil'),
+    path('bilgilerimi_guncelle/', views.bilgilerimi_guncelle, name='bilgilerimi_guncelle'),
+
 
 ]
