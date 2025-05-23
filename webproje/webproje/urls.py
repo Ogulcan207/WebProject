@@ -35,5 +35,6 @@ urlpatterns = [
     path('admin_musteriler/', views.admin_musteriler, name='admin_musteriler'),
     path('admin_arac_sil/<int:arac_id>/', views.admin_arac_sil, name='admin_arac_sil'),
 
-
 ]
+if settings.DEBUG:
+    urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
