@@ -19,4 +19,21 @@ from django.urls import path
 
 urlpatterns = [
     path('admin/', admin.site.urls),
+    path('arac_ekle/', views.arac_ekle, name='arac_ekle'),
+    path('arac_sil/<int:arac_id>/', views.arac_sil, name='arac_sil'),
+    path('arac_guncelle/<int:arac_id>/', views.arac_guncelle, name='arac_guncelle'),
+    path('admin_arac_liste/', views.admin_arac_liste, name='admin_arac_liste'),
+    path('admin_arac_sil/<int:arac_id>/', views.admin_arac_sil, name='admin_arac_sil'),
+    path('admin_musteriler/', views.admin_musteriler, name='admin_musteriler'),
+    path('musteri_sil/<int:musteri_id>/', views.musteri_sil, name='musteri_sil'),
+    path('bilgilerimi_guncelle/', views.bilgilerimi_guncelle, name='bilgilerimi_guncelle'),
+    path('admin_paneli/', views.admin_paneli, name='admin_paneli'),
+    path('admin_arac_liste/', views.admin_arac_liste, name='admin_arac_liste'),
+    path('admin_rezervasyon_listesi/', views.admin_rezervasyon_listesi, name='admin_rezervasyon_listesi'),
+    path('admin_rezervasyon_guncelle/<int:rezervasyon_id>/', views.admin_rezervasyon_guncelle, name='admin_rezervasyon_guncelle'),
+    path('admin_rezervasyon_iptal/<int:rezervasyon_id>/', views.admin_rezervasyon_iptal, name='admin_rezervasyon_iptal'),
+    path('admin_musteriler/', views.admin_musteriler, name='admin_musteriler'),
+    path('admin_arac_sil/<int:arac_id>/', views.admin_arac_sil, name='admin_arac_sil'),
+
+
 ]

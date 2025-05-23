@@ -13,6 +13,7 @@ class Arac(models.Model):
 class Musteri(models.Model):
     ad = models.CharField(max_length=100)
     soyad = models.CharField(max_length=100)
+    
     tc = models.IntegerField()
     kullanici_adi = models.CharField(max_length=50)
     sifre = models.CharField(max_length=50)
