@@ -7,6 +7,7 @@ from django.contrib.auth.decorators import login_required
 from django.urls import reverse
 
 
+
 @login_required
 def admin_arac_liste(request):
     if not request.user.is_staff:
