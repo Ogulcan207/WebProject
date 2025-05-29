@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Bilgilerimi Güncelle</title>
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <style>
+        body {
+            background-color: #f8f9fa;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        .container {
+            margin-top: 50px;
+        }
+        .card {
+            border: none;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            padding: 20px;
+            background-color: #f8f9fa; /* Added background color */
+        }
+        .card h2 {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: #343a40;
+            margin-bottom: 20px; /* Added margin bottom */
+        }
+        .form-control {
+            margin-bottom: 15px;
+        }
+        .btn-primary {
+            background-color: #007bff; /* Updated primary button color */
+            border-color: #007bff;
+        }
+        .btn-primary:hover {
+            background-color: #0056b3; /* Updated primary button hover color */
+            border-color: #0056b3;
+        }
+        .btn-secondary {
+            background-color: #6c757d; /* Updated secondary button color */
+            border-color: #6c757d;
+        }
+        .btn-secondary:hover {
+            background-color: #545b62; /* Updated secondary button hover color */
+            border-color: #545b62;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-md-6">
+                <div class="card">
+                    <h2 class="text-center">Bilgilerimi Güncelle</h2>
+                    <form method="post" class="mt-4">
+                        {% csrf_token %}
+                        <div class="form-group row">
+                            <label for="{{ form.ad.id_for_label }}" class="col-sm-4 col-form-label">{{ form.ad.label }}</label>
+                            <div class="col-sm-8">
+                                {{ form.ad }}
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <label for="{{ form.soyad.id_for_label }}" class="col-sm-4 col-form-label">{{ form.soyad.label }}</label>
+                            <div class="col-sm-8">
+                                {{ form.soyad }}
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <label for="{{ form.tc.id_for_label }}" class="col-sm-4 col-form-label">{{ form.tc.label }}</label>
+                            <div class="col-sm-8">
+                                {{ form.tc }}
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <label for="{{ form.kullanici_adi.id_for_label }}" class="col-sm-4 col-form-label">{{ form.kullanici_adi.label }}</label>
+                            <div class="col-sm-8">
+                                {{ form.kullanici_adi }}
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <label for="{{ form.sifre.id_for_label }}" class="col-sm-4 col-form-label">{{ form.sifre.label }}</label>
+                            <div class="col-sm-8">
+                                {{ form.sifre }}
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <label for="{{ form.email.id_for_label }}" class="col-sm-4 col-form-label">{{ form.email.label }}</label>
+                            <div class="col-sm-8">
+                                {{ form.email }}
+                            </div>
+                        </div>
+                        <button type="submit" class="btn btn-primary btn-block mt-3">Güncelle</button>
+                    </form>
+                    <a href="{% url 'musteri_paneli' %}" class="btn btn-secondary btn-block mt-3">Geri Dön</a>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.4/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+</body>
+</html>

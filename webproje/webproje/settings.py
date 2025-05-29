@@ -53,7 +53,7 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
 
-ROOT_URLCONF = 'proje.urls'
+ROOT_URLCONF = 'webproje.urls'
 import os
 TEMPLATES = [
     {
@@ -79,7 +79,7 @@ EMAIL_HOST_USER = 'yigit.dikbas@hotmail.com'
 EMAIL_HOST_PASSWORD = 'kinkio28'
 DEFAULT_FROM_EMAIL = 'yigit.dikbas@hotmail.com'
 
-WSGI_APPLICATION = 'proje.wsgi.application'
+WSGI_APPLICATION = 'webproje.wsgi.application'
 
 
 # Database

@@ -3,7 +3,8 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.core.paginator import Paginator
 from .forms import AracForm, MusteriForm
 from .models import Arac, Musteri
-from django.contrib.auth.decorators import login_required
+from django.contrib.auth.decorators import login_required, user_passes_test
+from django.views.decorators.csrf import csrf_exempt
 from django.urls import reverse
 
 
@@ -46,6 +47,7 @@ def arac_sil(request, arac_id):
         return redirect('arac_listesi')
     return render(request, 'arac_sil.html', {'arac': arac})
 
+@login_required
 def admin_arac_sil(request, arac_id):
     arac = get_object_or_404(Arac, id=arac_id)
     if request.method == 'POST':
@@ -53,9 +55,15 @@ def admin_arac_sil(request, arac_id):
         return redirect('admin_arac_liste')
     return render(request, 'admin_arac_liste.html', {'arac': arac})
 
+@login_required
+def admin_paneli(request):
+    if request.session.get('user_type') != 'admin':
+        return redirect('login')
+    araclar = Arac.objects.all()
+    return render(request, 'admin_paneli.html', {'araclar': araclar})
 
+@login_required
 def arac_guncelle(request, arac_id):
-
     arac = get_object_or_404(Arac, id=arac_id)
     if request.method == 'POST':
         form = AracForm(request.POST, request.FILES, instance=arac)
