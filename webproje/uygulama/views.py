@@ -1,13 +1,14 @@
 from django.shortcuts import render
 from django.shortcuts import render, redirect, get_object_or_404
 from django.core.paginator import Paginator
-from .forms import AracForm, MusteriForm
+from .forms import AracForm, MusteriForm, ContactForm
 from .models import Arac, Musteri
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.views.decorators.csrf import csrf_exempt
 from django.urls import reverse
 
-
+def anasayfa(request):
+    return render(request, 'anasayfa.html')
 
 @login_required
 def admin_arac_liste(request):
@@ -104,3 +105,20 @@ def bilgilerimi_guncelle(request):
     else:
         form = MusteriForm(instance=musteri)
     return render(request, 'bilgilerimi_guncelle.html', {'form': form})
+
+def contact_view(request):
+    if request.method == 'POST':
+        form = ContactForm(request.POST)
+        if form.is_valid():
+            form.save()
+            return redirect('contact_view')  # Başarılı iletişim sayfasına yönlendirme yapılabilir
+        else:
+            # Form geçersiz olduğunda hata mesajlarını görmek için form hatalarını ekrana yazdırın
+            print(form.errors)
+    else:
+        form = ContactForm()
+    
+    return render(request, 'iletisim.html', {'form': form})
+
+def iletisim(request):
+    return render(request, 'iletisim.html')
