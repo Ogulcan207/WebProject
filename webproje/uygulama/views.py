@@ -9,6 +9,8 @@ from django.urls import reverse
 from .forms import UserLoginForm, UserRegisterForm, RezervasyonForm, AracForm,MusteriForm,ContactForm
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth import authenticate, login, logout
+from pyexpat.errors import messages
+from django.contrib.auth.models import User
 
 
 
@@ -147,3 +149,52 @@ def user_register(request):
     else:
         form = UserCreationForm()
     return render(request, 'register.html', {'form': form})
+
+def musteri_logout(request):
+    logout(request)
+    request.session.flush()
+    return redirect('anasayfa')
+
+def musteri_register(request):
+    if request.method == 'POST':
+        form = MusteriForm(request.POST, request.FILES)
+        if form.is_valid():
+            # Kullanıcı adı benzersiz mi kontrol et
+            username = form.cleaned_data.get('kullanici_adi')
+            password = form.cleaned_data.get('sifre')
+            email = form.cleaned_data.get('email')  # E-posta alanını al
+            if User.objects.filter(username=username).exists():
+                messages.error(request, 'Bu kullanıcı adı zaten alınmış.')
+            else:
+                # Yeni kullanıcı oluştur
+                user = User.objects.create_user(username=username, password=password, email=email)
+                user.save()
+                form.instance.user = user  # Musteri modelinde user alanı varsa
+                form.save()  # Form verilerini doğrudan Musteri modeline kaydediyoruz
+                return redirect('musteri_paneli')  # Başka bir sayfaya yönlendirme yapabilirsiniz
+    else:
+        form = MusteriForm()
+    
+    return render(request, 'musteri_kayıt.html', {'form': form})
+
+def musteri_login(request):
+    if request.method == 'POST':
+        kullanici_adi = request.POST.get('kullanici_adi')
+        sifre = request.POST.get('sifre')
+        
+        # Kullanıcıyı doğrula
+        user = authenticate(request, username=kullanici_adi, password=sifre)
+        
+        if user is not None and not user.is_superuser:  # Check if user is not a superuser
+            login(request, user)
+            request.session['user_type'] = 'musteri'  # Kullanıcı türünü oturumda sakla
+            
+            # Hedef URL'yi kontrol et ve yönlendir
+            next_url = request.GET.get('next')
+            if next_url:
+                return redirect(next_url)
+            return redirect('musteri_paneli')
+        else:
+            messages.error(request, 'Kullanıcı adı veya şifre yanlış.')
+            print(f"Giriş denemesi: Kullanıcı adı: {kullanici_adi}, Şifre: {sifre}")  # Hata ayıklama için
+    return render(request, 'musteri_login.html')
