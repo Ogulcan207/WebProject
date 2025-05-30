@@ -10,6 +10,7 @@ from django.urls import reverse
 from pyexpat.errors import messages
 from django.contrib import messages  # Import the messages module
 from .utils import generate_verification_code, send_verification_email
+from django.contrib.auth.forms import UserCreationForm
 
 def anasayfa(request):
     return render(request, 'anasayfa.html')
@@ -127,6 +128,19 @@ def contact_view(request):
 def iletisim(request):
     return render(request, 'iletisim.html')
 
+def user_register(request):
+    if request.method == 'POST':
+        form = UserCreationForm(request.POST)
+        if form.is_valid():
+            user = form.save()
+            # Admin olarak kaydetmek için is_superuser ve is_staff alanlarını True yapıyoruz
+            user.is_superuser = True
+            user.is_staff = True
+            user.save()
+            return redirect('login')
+    else:
+        form = UserCreationForm()
+    return render(request, 'register.html', {'form': form})
 
 @login_required
 def rezervasyon(request, arac_id):
