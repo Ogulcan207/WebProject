@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>İletişim</title>
+</head>
+<body>
+    <h1>İletişim</h1>
+    <form method="post" action="{% url 'contact_view' %}"> <!-- Eklenen action attribute -->
+        {% csrf_token %}
+        <div class="form-group">
+            <label for="name">Adınız</label>
+            <input type="text" class="form-control" id="name" name="name" required>
+        </div>
+        <div class="form-group">
+            <label for="email">E-posta</label>
+            <input type="email" class="form-control" id="email" name="email" required>
+        </div>
+        <div class="form-group">
+            <label for="message">Mesajınız</label>
+            <textarea class="form-control" id="message" name="message" rows="5" required></textarea>
+        </div>
+        <button type="submit" class="btn btn-primary btn-block">Gönder</button>
+    </form>
+</body>
+</html>
