@@ -6,6 +6,9 @@ from .models import Arac, Musteri
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.views.decorators.csrf import csrf_exempt
 from django.urls import reverse
+from .forms import UserLoginForm, UserRegisterForm, RezervasyonForm, AracForm,MusteriForm,ContactForm
+from django.contrib.auth.forms import UserCreationForm
+from django.contrib.auth import authenticate, login, logout
 
 
 
@@ -104,3 +107,43 @@ def bilgilerimi_guncelle(request):
     else:
         form = MusteriForm(instance=musteri)
     return render(request, 'bilgilerimi_guncelle.html', {'form': form})
+
+def user_login(request):
+    if request.method == 'POST':
+        form = UserLoginForm(request.POST)
+        if form.is_valid():
+            username = form.cleaned_data['username']
+            password = form.cleaned_data['password']
+            user = authenticate(request, username=username, password=password)
+            if user is not None:
+                login(request, user)
+                if user.is_superuser:
+                    request.session['user_type'] = 'admin'  # Kullanıcı türünü oturumda sakla
+                    return redirect('admin_paneli')
+                else:
+                    request.session['user_type'] = 'musteri'  # Kullanıcı türünü oturumda sakla
+                    return redirect('musteri_paneli')
+            else:
+                form.add_error(None, 'Kullanıcı adı veya şifre yanlış')
+    else:
+        form = UserLoginForm()
+    return render(request, 'login.html', {'form': form})
+
+def user_logout(request):
+    logout(request)
+    request.session.flush()
+    return redirect('anasayfa')
+
+def user_register(request):
+    if request.method == 'POST':
+        form = UserCreationForm(request.POST)
+        if form.is_valid():
+            user = form.save()
+            # Admin olarak kaydetmek için is_superuser ve is_staff alanlarını True yapıyoruz
+            user.is_superuser = True
+            user.is_staff = True
+            user.save()
+            return redirect('login')
+    else:
+        form = UserCreationForm()
+    return render(request, 'register.html', {'form': form})
