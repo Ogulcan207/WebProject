@@ -295,7 +295,7 @@ def dogrulama(request):
         form = VerificationForm()
     return render(request, 'dogrulama.html', {'form': form})
 
- def musteri_login(request):
+def musteri_login(request):
     if request.method == 'POST':
         kullanici_adi = request.POST.get('kullanici_adi')
         sifre = request.POST.get('sifre')
