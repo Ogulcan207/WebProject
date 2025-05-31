@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Ödeme</title>
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <style>
+        body {
+            background-color: #f8f9fa;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        .container {
+            margin-top: 50px;
+        }
+        .card {
+            border: none;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            padding: 20px;
+            background: linear-gradient(135deg, #f8f9fa, #e9ecef);
+        }
+        .card h2 {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: #343a40;
+        }
+        .card .btn-primary {
+            background-color: #007bff;
+            border-color: #007bff;
+            font-size: 1rem;
+            padding: 10px 15px;
+            transition: background-color 0.3s, border-color 0.3s;
+        }
+        .card .btn-primary:hover {
+            background-color: #0056b3;
+            border-color: #004085;
+        }
+        .form-group label {
+            font-weight: bold;
+        }
+        .form-group input {
+            border-radius: 5px;
+            border: 1px solid #ced4da;
+        }
+        .form-group input:focus {
+            border-color: #007bff;
+            box-shadow: 0 0 0 0.2rem rgba(38, 143, 255, 0.25);
+        }
+        .input-group-text {
+            background-color: #e9ecef;
+            border: 1px solid #ced4da;
+        }
+        .input-group-text i {
+            color: #007bff;
+        }
+        .card-icon {
+            width: 24px;
+            height: 24px;
+        }
+        .back-link {
+            display: block;
+            margin: 20px auto;
+            width: fit-content;
+            text-align: center;
+        }
+        .back-link:hover {
+            text-decoration: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-md-6">
+                <div class="card">
+                    <h2 class="text-center">Ödeme</h2>
+                    <p class="text-center">Toplam Tutar: {{ total_price }} TL</p>
+                    <form method="post">
+                        {% csrf_token %}
+                        <div class="form-group">
+                            <label for="card_name">Kart Üzerindeki İsim</label>
+                            <div class="input-group">
+                                <div class="input-group-prepend">
+                                    <span class="input-group-text"><i class="fas fa-user"></i></span>
+                                </div>
+                                <input type="text" class="form-control" id="card_name" name="card_name" required>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="card_number">Kart Numarası</label>
+                            <div class="input-group">
+                                <div class="input-group-prepend">
+                                    <span class="input-group-text"><i class="fas fa-credit-card"></i></span>
+                                </div>
+                                <input type="text" class="form-control" id="card_number" name="card_number" required oninput="detectCardType()">
+                                <div class="input-group-append">
+                                    <span class="input-group-text">
+                                        <img id="card-icon" class="card-icon" src="{% static 'images/blank.png' %}" alt="Card Type">
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group col-md-6">
+                                <label for="expiry_date">Son Kullanma Tarihi</label>
+                                <div class="input-group">
+                                    <div class="input-group-prepend">
+                                        <span class="input-group-text"><i class="fas fa-calendar-alt"></i></span>
+                                    </div>
+                                    <input type="text" class="form-control" id="expiry_date" name="expiry_date" placeholder="MM/YY" required>
+                                </div>
+                            </div>
+                            <div class="form-group col-md-6">
+                                <label for="cvv">CVV</label>
+                                <div class="input-group">
+                                    <div class="input-group-prepend">
+                                        <span class="input-group-text"><i class="fas fa-lock"></i></span>
+                                    </div>
+                                    <input type="text" class="form-control" id="cvv" name="cvv" required>
+                                </div>
+                            </div>
+                        </div>
+                        <button type="submit" class="btn btn-primary btn-block">Ödemeyi Tamamla</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+    <a href="{% url 'anasayfa' %}" class="btn btn-secondary back-link">Ana Sayfa</a>
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.4/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.amazonaws.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <script src="https://kit.fontawesome.com/a076d05399.js"></script> <!-- Font Awesome Kit -->
+    <script>
+        function detectCardType() {
+            const cardNumber = document.getElementById('card_number').value;
+            const cardIcon = document.getElementById('card-icon');
+            const visaPattern = /^4[0-9]{0,15}$/;
+            const masterCardPattern = /^5[1-5][0-9]{0,14}$/;
+
+            if (visaPattern.test(cardNumber)) {
+                cardIcon.src = "{% static '/css/images/visa.png' %}";
+            } else if (masterCardPattern.test(cardNumber)) {
+                cardIcon.src = "{% static '/css/images/mastercard.png' %}";
+            } else {
+                cardIcon.src = "{% static 'images/blank.png' %}";
+            }
+        }
+    </script>
+</body>
+</html>
