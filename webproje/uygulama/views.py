@@ -7,13 +7,13 @@ from .models import Arac, Musteri
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.views.decorators.csrf import csrf_exempt
 from django.urls import reverse
+from .forms import UserLoginForm, UserRegisterForm, RezervasyonForm, AracForm,MusteriForm,ContactForm
+from django.contrib.auth.forms import UserCreationForm
+from django.contrib.auth import authenticate, login, logout
 from pyexpat.errors import messages
+from django.contrib.auth.models import User
 from django.contrib import messages  # Import the messages module
 from .utils import generate_verification_code, send_verification_email
-from django.contrib.auth.forms import UserCreationForm
-
-def anasayfa(request):
-    return render(request, 'anasayfa.html')
 
 @login_required
 def admin_arac_liste(request):
@@ -111,19 +111,72 @@ def bilgilerimi_guncelle(request):
         form = MusteriForm(instance=musteri)
     return render(request, 'bilgilerimi_guncelle.html', {'form': form})
 
-def contact_view(request):
+def user_login(request):
     if request.method == 'POST':
-        form = ContactForm(request.POST)
+        form = UserLoginForm(request.POST)
         if form.is_valid():
-            form.save()
-            return redirect('contact_view')  # Başarılı iletişim sayfasına yönlendirme yapılabilir
-        else:
-            # Form geçersiz olduğunda hata mesajlarını görmek için form hatalarını ekrana yazdırın
-            print(form.errors)
+            username = form.cleaned_data['username']
+            password = form.cleaned_data['password']
+            user = authenticate(request, username=username, password=password)
+            if user is not None:
+                login(request, user)
+                if user.is_superuser:
+                    request.session['user_type'] = 'admin'  # Kullanıcı türünü oturumda sakla
+                    return redirect('admin_paneli')
+                else:
+                    request.session['user_type'] = 'musteri'  # Kullanıcı türünü oturumda sakla
+                    return redirect('musteri_paneli')
+            else:
+                form.add_error(None, 'Kullanıcı adı veya şifre yanlış')
     else:
-        form = ContactForm()
+        form = UserLoginForm()
+    return render(request, 'login.html', {'form': form})
+
+def user_logout(request):
+    logout(request)
+    request.session.flush()
+    return redirect('anasayfa')
+
+def user_register(request):
+    if request.method == 'POST':
+        form = UserCreationForm(request.POST)
+        if form.is_valid():
+            user = form.save()
+            # Admin olarak kaydetmek için is_superuser ve is_staff alanlarını True yapıyoruz
+            user.is_superuser = True
+            user.is_staff = True
+            user.save()
+            return redirect('login')
+    else:
+        form = UserCreationForm()
+    return render(request, 'register.html', {'form': form})
+
+def musteri_logout(request):
+    logout(request)
+    request.session.flush()
+    return redirect('anasayfa')
+
+def musteri_register(request):
+    if request.method == 'POST':
+        form = MusteriForm(request.POST, request.FILES)
+        if form.is_valid():
+            # Kullanıcı adı benzersiz mi kontrol et
+            username = form.cleaned_data.get('kullanici_adi')
+            password = form.cleaned_data.get('sifre')
+            email = form.cleaned_data.get('email')  # E-posta alanını al
+            if User.objects.filter(username=username).exists():
+                messages.error(request, 'Bu kullanıcı adı zaten alınmış.')
+            else:
+                # Yeni kullanıcı oluştur
+                user = User.objects.create_user(username=username, password=password, email=email)
+                user.save()
+                form.instance.user = user  # Musteri modelinde user alanı varsa
+                form.save()  # Form verilerini doğrudan Musteri modeline kaydediyoruz
+                return redirect('musteri_paneli')  # Başka bir sayfaya yönlendirme yapabilirsiniz
+    else:
+        form = MusteriForm()
     
-    return render(request, 'iletisim.html', {'form': form})
+    return render(request, 'musteri_kayıt.html', {'form': form})
 
 def iletisim(request):
     return render(request, 'iletisim.html')
@@ -241,3 +294,25 @@ def dogrulama(request):
     else:
         form = VerificationForm()
     return render(request, 'dogrulama.html', {'form': form})
+
+ def musteri_login(request):
+    if request.method == 'POST':
+        kullanici_adi = request.POST.get('kullanici_adi')
+        sifre = request.POST.get('sifre')
+        
+        # Kullanıcıyı doğrula
+        user = authenticate(request, username=kullanici_adi, password=sifre)
+        
+        if user is not None and not user.is_superuser:  # Check if user is not a superuser
+            login(request, user)
+            request.session['user_type'] = 'musteri'  # Kullanıcı türünü oturumda sakla
+            
+            # Hedef URL'yi kontrol et ve yönlendir
+            next_url = request.GET.get('next')
+            if next_url:
+                return redirect(next_url)
+            return redirect('musteri_paneli')
+        else:
+            messages.error(request, 'Kullanıcı adı veya şifre yanlış.')
+            print(f"Giriş denemesi: Kullanıcı adı: {kullanici_adi}, Şifre: {sifre}")  # Hata ayıklama için
+    return render(request, 'musteri_login.html')
