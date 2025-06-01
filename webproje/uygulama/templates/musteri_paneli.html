@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Müşteri Paneli</title>
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <style>
+        body {
+            background: #e5e7eb; /* Darker background */
+            color: #fff;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        .container {
+            margin-top: 50px;
+        }
+        .card {
+            border: none;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+            background: #343a40; /* Darker card background */
+            color: #fff;
+        }
+        .card h2 {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: #f8f9fa; /* Light text */
+        }
+        .card .btn-primary {
+            background-color: #94a3b8;
+            border-color: #007bff;
+            font-size: 1rem;
+            padding: 10px 15px;
+            transition: background-color 0.3s, border-color 0.3s;
+        }
+        .card .btn-primary:hover {
+            background-color: #0056b3;
+            border-color: #004085;
+        }
+        .card .btn-danger {
+            background-color: #dc3545;
+            border-color: #dc3545;
+            font-size: 1rem;
+            padding: 10px 15px;
+            transition: background-color 0.3s, border-color 0.3s;
+        }
+        .card .btn-danger:hover {
+            background-color: #c82333;
+            border-color: #bd2130;
+        }
+        .card .arac {
+            margin-bottom: 20px;
+        }
+        .card .arac h2 {
+            margin-top: 15px;
+        }
+        .card .arac p {
+            margin: 5px 0;
+        }
+        .card .arac img {
+            max-width: 100%;
+            height: auto;
+            border-radius: 10px;
+            margin-top: 10px;
+        }
+        .text-center {
+            font-size: 2rem;
+            font-weight: 700;
+            color: #f8f9fa; /* Light text */
+        }
+        .hidden {
+            display: none;
+        }
+        .card .btn-primary, .card .btn-danger {
+            margin-top: 10px;
+            border: 1px solid #dee2e6;
+            border-radius: 5px;
+            padding: 10px;
+        }
+        .card .arac img {
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container mt-5">
+        <h1 class="text-center mb-4">Hoşgeldiniz {{ request.musteri.ad }} {{ request.musteri.soyad }}</h1>
+        <div class="row justify-content-center">
+            <div class="col-md-8">
+                <div class="card p-4">
+                    <div id="araclarContainer">
+                        <a href="{% url 'musteri_rezer' %}" class="btn btn-primary btn-block">Rezervasyon Yap</a>
+                    </div>
+                    <a href="{% url 'mevcut_rezervasyonlar' %}" class="btn btn-primary btn-block mt-3">Mevcut Rezervasyonlar</a>
+                    <a href="{% url 'sikayet_olustur' %}" class="btn btn-primary btn-block mt-3">Şikayet Oluştur</a>
+                    <a href="{% url 'bilgilerimi_guncelle' %}" class="btn btn-primary btn-block mt-3">Bilgilerimi Güncelle</a>
+                    <a href="{% url 'musteri_logout' %}" class="btn btn-danger btn-block mt-3">Çıkış Yap</a>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.4/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.amazonaws.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+</body>
+</html>
