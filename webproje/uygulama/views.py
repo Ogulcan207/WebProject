@@ -14,6 +14,7 @@ from pyexpat.errors import messages
 from django.contrib.auth.models import User
 from django.contrib import messages  # Import the messages module
 from .utils import generate_verification_code, send_verification_email
+from django.core.mail import send_mail
 
 @login_required
 def admin_arac_liste(request):
@@ -295,7 +296,7 @@ def dogrulama(request):
         form = VerificationForm()
     return render(request, 'dogrulama.html', {'form': form})
 
- def musteri_login(request):
+def musteri_login(request):
     if request.method == 'POST':
         kullanici_adi = request.POST.get('kullanici_adi')
         sifre = request.POST.get('sifre')
@@ -316,3 +317,10 @@ def dogrulama(request):
             messages.error(request, 'Kullanıcı adı veya şifre yanlış.')
             print(f"Giriş denemesi: Kullanıcı adı: {kullanici_adi}, Şifre: {sifre}")  # Hata ayıklama için
     return render(request, 'musteri_login.html')
+
+def musteri_rezer(request):
+    araclar_list = Arac.objects.all()
+    paginator = Paginator(araclar_list, 3)  # Sayfa başına 6 araç
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
+    return render(request, 'musteri_rezer.html', {'page_obj': page_obj})

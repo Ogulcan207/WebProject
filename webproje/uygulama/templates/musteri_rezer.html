@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Araç Listesi</title>
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <style>
+        body {
+            background-color: #f8f9fa;
+        }
+        .container {
+            margin-top: 50px;
+        }
+        .arac {
+            background-color: white;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            margin-bottom: 20px;
+            padding: 20px;
+            position: relative;
+            overflow: hidden;
+        }
+        .arac img {
+            max-width: 100%;
+            height: auto;
+            border-radius: 10px;
+        }
+        .arac h2 {
+            margin-top: 15px;
+        }
+        .arac p {
+            margin: 5px 0;
+        }
+        .btn-danger {
+            margin-top: 10px;
+        }
+        .back-link {
+            margin-top: 20px;
+            display: inline-block;
+        }
+        .kirala-btn {
+            position: absolute;
+            bottom: -50px;
+            left: 50%;
+            transform: translateX(-50%);
+            transition: bottom 0.5s;
+        }
+        .arac:hover .kirala-btn {
+            bottom: 30%;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1 class="text-center mb-4">Mevcut Araçlar</h1>
+        <div class="row">
+            {% for arac in page_obj %}
+                <div class="col-md-4">
+                    <div class="arac">
+                        {% if arac.resim %}
+                            <img src="{{ arac.resim.url }}" alt="{{ arac.marka }} {{ arac.model }}">
+                        {% else %}
+                            <img src="{% static 'images/default_car.png' %}" alt="Varsayılan Resim">
+                        {% endif %}
+                        <h2>{{ arac.marka }} {{ arac.model }}</h2>
+                        <p>Yıl: {{ arac.yil }}</p>
+                        <p>Fiyat: {{ arac.fiyat }} TL</p>
+                        {% if user.is_authenticated %}
+                            <a href="{% url 'rezervasyon' arac.id %}" class="btn btn-primary kirala-btn">Kirala</a>
+                        {% else %}
+                            <a href="{% url 'musteri_login' %}?next={% url 'rezervasyon' arac.id %}" class="btn btn-primary kirala-btn">Kirala</a>
+                        {% endif %}
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+        <nav aria-label="Page navigation">
+            <ul class="pagination justify-content-center">
+                {% if page_obj.has_previous %}
+                    <li class="page-item"><a class="page-link" href="?page=1">&laquo; İlk</a></li>
+                    <li class="page-item"><a class="page-link" href="?page={{ page_obj.previous_page_number }}">Önceki</a></li>
+                {% endif %}
+                <li class="page-item disabled"><span class="page-link">Sayfa {{ page_obj.number }} / {{ page_obj.paginator.num_pages }}</span></li>
+                {% if page_obj.has_next %}
+                    <li class="page-item"><a class="page-link" href="?page={{ page_obj.next_page_number }}">Sonraki</a></li>
+                    <li class="page-item"><a class="page-link" href="?page={{ page_obj.paginator.num_pages }}">Son &raquo;</a></li>
+                {% endif %}
+            </ul>
+        </nav>
+        <a href="{% url 'musteri_paneli' %}" class="btn btn-secondary back-link">Ana Sayfa</a>
+    </div>
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.4/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+</body>
+</html>
