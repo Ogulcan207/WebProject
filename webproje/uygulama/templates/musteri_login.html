@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Müşteri Girişi</title>
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <style>
+        body {
+            background-color: #f8f9fa;
+        }
+        .container {
+            margin-top: 50px;
+        }
+        .form-container {
+            background-color: white;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            padding: 20px;
+        }
+        .btn-primary, .btn-secondary {
+            margin-top: 10px;
+        }
+        .back-link{
+            margin-left: 50%;
+        }
+    </style>
+</head>
+<body>
+    <div class="container mt-5">
+        <h1 class="text-center mb-4">Müşteri Girişi</h1>
+        <div class="row justify-content-center">
+            <div class="col-md-6">
+                <div class="form-container">
+                    <form method="post">
+                        {% csrf_token %}
+                        <div class="form-group">
+                            <label for="kullanici_adi">Kullanıcı Adı:</label>
+                            <input type="text" id="kullanici_adi" name="kullanici_adi" class="form-control" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="sifre">Şifre:</label>
+                            <input type="password" id="sifre" name="sifre" class="form-control" required>
+                        </div>
+                        <button type="submit" class="btn btn-primary btn-block">Giriş Yap</button>
+                    </form>
+                    <a href="{% url 'musteri_kayıt' %}" class="btn btn-secondary btn-block">Kayıt Ol</a>
+                </div>
+            </div>
+        </div>
+    </div>
+    <a href="{% url 'anasayfa' %}" class="back-link">Ana Sayfa</a>
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.4/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+</body>
+</html>

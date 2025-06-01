@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Mevcut Rezervasyonlar</title>
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <style>
+        body {
+            background-color: #f8f9fa;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        .container {
+            margin-top: 50px;
+        }
+        .card {
+            border: none;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            padding: 20px;
+        }
+        .card h2 {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: #343a40;
+        }
+        .list-group-item {
+            border: none;
+            border-bottom: 1px solid #e9ecef;
+            background: #64748b;
+            color: white;
+        }
+        .btn-group {
+            display: flex;
+            justify-content: space-between;
+        }
+        .pagination {
+            display: flex;
+            justify-content: center;
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1 class="text-center mb-4">Mevcut Rezervasyonlar</h1>
+        <div class="row justify-content-center">
+            <div class="col-md-8">
+                <div class="card">
+                    {% if page_obj %}
+                        <ul class="list-group mb-4">
+                            {% for rezervasyon in page_obj %}
+                                <li class="list-group-item",style="background-color: #64748b;">
+                                    <h5>{{ rezervasyon.arac.marka }} {{ rezervasyon.arac.model }}</h5>
+                                    <p>Başlangıç Tarihi: {{ rezervasyon.baslangic_tarihi }}</p>
+                                    <p>Bitiş Tarihi: {{ rezervasyon.bitis_tarihi }}</p>
+                                    <p>Toplam Fiyat: {{ rezervasyon.fiyat }}</p>
+                                    <div class="btn-group">
+                                        <a href="{% url 'rezervasyon_guncelle' rezervasyon.id %}" class="btn btn-primary">Güncelle</a>
+                                        <a href="{% url 'rezervasyon_iptal' rezervasyon.id %}" class="btn btn-danger">İptal Et</a>
+                                    </div>
+                                </li>
+                            {% endfor %}
+                        </ul>
+                        <div class="pagination">
+                            <span class="step-links">
+                                {% if page_obj.has_previous %}
+                                    <a href="?page=1">&laquo; İlk</a>
+                                    <a href="?page={{ page_obj.previous_page_number }}">Önceki</a>
+                                {% endif %}
+
+                                <span class="current">
+                                    Sayfa {{ page_obj.number }} / {{ page_obj.paginator.num_pages }}
+                                </span>
+
+                                {% if page_obj.has_next %}
+                                    <a href="?page={{ page_obj.next_page_number }}">Sonraki</a>
+                                    <a href="?page={{ page_obj.paginator.num_pages }}">Son &raquo;</a>
+                                {% endif %}
+                            </span>
+                        </div>
+                    {% else %}
+                        <p class="text-center">Mevcut rezervasyon bulunmamaktadır.</p>
+                    {% endif %}
+                    <a href="{% url 'musteri_paneli' %}" class="btn btn-secondary btn-block mt-3">Geri Dön</a>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.4/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.amazonaws.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+</body>
+</html>
