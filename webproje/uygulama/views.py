@@ -15,6 +15,8 @@ from django.contrib.auth.models import User
 from django.contrib import messages  # Import the messages module
 from .utils import generate_verification_code, send_verification_email
 from django.core.mail import send_mail
+from datetime import timezone
+from django.utils import timezone
 
 @login_required
 def admin_arac_liste(request):
@@ -324,3 +326,33 @@ def musteri_rezer(request):
     page_number = request.GET.get('page')
     page_obj = paginator.get_page(page_number)
     return render(request, 'musteri_rezer.html', {'page_obj': page_obj})
+
+@login_required
+def admin_rezervasyon_listesi(request):
+
+    if not request.user.is_staff:
+        return redirect('login')
+    
+    rezervasyonlar = Rezervasyon.objects.all()
+    paginator = Paginator(rezervasyonlar, 2)  # Sayfa başına 6 araç
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
+    return render(request, 'admin_rezervasyon.html', {'page_obj': page_obj})
+
+@login_required
+def mevcut_rezervasyonlar(request):
+    musteri = get_object_or_404(Musteri, kullanici_adi=request.user.username)
+    rezervasyonlar_list = Rezervasyon.objects.filter(musteri=musteri, bitis_tarihi__gte=timezone.now())
+    paginator = Paginator(rezervasyonlar_list, 1)  # Sayfa başına 10 rezervasyon
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
+    return render(request, 'mevcut_rezervasyonlar.html', {
+        'page_obj': page_obj
+    })
+
+@login_required
+def musteri_paneli(request):
+    if request.session.get('user_type') != 'musteri':
+        return redirect('musteri_login')
+    araclar = Arac.objects.all()
+    return render(request, 'musteri_paneli.html', {'araclar': araclar})
