@@ -18,6 +18,7 @@ from django.core.mail import send_mail
 from datetime import timezone
 from django.utils import timezone
 from django.http import HttpResponse, JsonResponse
+from django.db.models import Q
 
 @login_required
 def admin_arac_liste(request):
