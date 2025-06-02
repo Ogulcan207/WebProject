@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Admin Paneli</title>
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <style>
+        body {
+            background: #d1d5db; /* Dark background */
+            color: #ecf0f1; /* Light text */
+        }
+        .container {
+            margin-top: 50px;
+        }
+        .btn-block {
+            margin-bottom: 15px;
+        }
+        .card {
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            background: #34495e; /* Darker card background */
+            color: #ecf0f1; /* Light text */
+        }
+        .btn-primary {
+            background-color: #3498db;
+            border-color: #2980b9;
+        }
+        .btn-primary:hover {
+            background-color: #2980b9;
+            border-color: #1f618d;
+        }
+        .btn-secondary {
+            background-color: #95a5a6;
+            border-color: #7f8c8d;
+        }
+        .btn-secondary:hover {
+            background-color: #7f8c8d;
+            border-color: #707b7c;
+        }
+        .btn-info {
+            background-color: #1abc9c;
+            border-color: #16a085;
+        }
+        .btn-info:hover {
+            background-color: #16a085;
+            border-color: #138d75;
+        }
+        .btn-thirdly {
+            background-color: #6c757d;
+            color: white;
+        }
+        .btn-thirdly:hover {
+            background-color: #5a6268;
+            color: white;
+        }
+        .btn-danger {
+            background-color: #e74c3c;
+            border-color: #c0392b;
+        }
+        .btn-danger:hover {
+            background-color: #c0392b;
+            border-color: #a93226;
+        }
+    </style>
+</head>
+<body>
+    {% if request.session.user_type == "admin" %}
+    <div class="container mt-5" style="background-color: #e2e8f0;">
+        <h1 class="text-center mb-4">Admin Paneli</h1>
+        <div class="row justify-content-center">
+            <div class="col-md-6">
+                <div class="card">
+                    <a href="{% url 'admin_arac_liste' %}" class="btn btn-primary btn-block">Mevcut Araçlar</a>
+                    <a href="{% url 'admin_rezervasyon' %}" class="btn btn-secondary btn-block">Rezervasyonlar</a>
+                    <a href="{% url 'sikayetler' %}" class="btn btn-info btn-block">Şikayetler</a>
+                    <a href="{% url 'admin_musteriler' %}" class="btn btn-thirdly btn-block">Müşteriler</a>
+                    <a href="{% url 'logout' %}" class="btn btn-danger btn-block">Çıkış Yap</a>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% else %}
+    <div class="container mt-5">
+        <div class="alert alert-danger text-center">
+            Bu sayfaya erişim yetkiniz yok.
+        </div>
+    </div>
+    {% endif %}
+    
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.4/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+</body>
+</html>
