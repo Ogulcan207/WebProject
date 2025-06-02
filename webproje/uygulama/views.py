@@ -17,6 +17,7 @@ from .utils import generate_verification_code, send_verification_email
 from django.core.mail import send_mail
 from datetime import timezone
 from django.utils import timezone
+from django.http import HttpResponse, JsonResponse
 
 @login_required
 def admin_arac_liste(request):
@@ -393,4 +394,13 @@ def fiyat_filtrele(request):
         return render(request, 'anasayfa.html')
     
 
-    
+def kontrol_rezervasyon(request, arac_id):
+    baslangic_tarihi = request.GET.get('baslangic_tarihi')
+    bitis_tarihi = request.GET.get('bitis_tarihi')
+    rezervasyonlar = Rezervasyon.objects.filter(
+        arac_id=arac_id,
+        baslangic_tarihi__lt=bitis_tarihi,
+        bitis_tarihi__gt=baslangic_tarihi
+    )
+    return JsonResponse({'rezervasyonlar': list(rezervasyonlar.values())})
+
