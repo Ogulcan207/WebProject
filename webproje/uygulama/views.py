@@ -17,6 +17,7 @@ from .utils import generate_verification_code, send_verification_email
 from django.core.mail import send_mail
 from datetime import timezone
 from django.utils import timezone
+from django.http import HttpResponse, JsonResponse
 
 @login_required
 def admin_arac_liste(request):
@@ -356,3 +357,50 @@ def musteri_paneli(request):
         return redirect('musteri_login')
     araclar = Arac.objects.all()
     return render(request, 'musteri_paneli.html', {'araclar': araclar})
+
+
+def fiyat_filtrele(request):
+    if request.method == 'POST':
+        min_price = request.POST.get('minPrice')
+        max_price = request.POST.get('maxPrice')
+        start_date = request.POST.get('startDate')
+        end_date = request.POST.get('endDate')
+
+        # Fiyat aralığına göre araçları filtrele
+        filtered_cars = Arac.objects.all()
+        if min_price:
+            filtered_cars = filtered_cars.filter(fiyat__gte=min_price)
+        if max_price:
+            filtered_cars = filtered_cars.filter(fiyat__lte=max_price)
+
+        # Tarih aralığına göre araçları filtrele
+        if start_date and end_date:
+            # Belirtilen tarih aralığında rezervasyonu olmayan araçları filtrele
+            filtered_cars = filtered_cars.exclude(
+                Q(rezervasyon__baslangic_tarihi__lt=end_date) & Q(rezervasyon__bitis_tarihi__gt=start_date)
+            )
+
+        # Tarihleri session'a kaydet
+        request.session['start_date'] = start_date
+        request.session['end_date'] = end_date
+
+        context = {
+            'filtered_cars': filtered_cars,
+            'start_date': start_date,
+            'end_date': end_date,
+        }
+        return render(request, 'fiyat_filtrele.html', context)
+    else:
+        return render(request, 'anasayfa.html')
+    
+
+def kontrol_rezervasyon(request, arac_id):
+    baslangic_tarihi = request.GET.get('baslangic_tarihi')
+    bitis_tarihi = request.GET.get('bitis_tarihi')
+    rezervasyonlar = Rezervasyon.objects.filter(
+        arac_id=arac_id,
+        baslangic_tarihi__lt=bitis_tarihi,
+        bitis_tarihi__gt=baslangic_tarihi
+    )
+    return JsonResponse({'rezervasyonlar': list(rezervasyonlar.values())})
+
