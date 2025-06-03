@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Fiyat ve Tarih Filtreleme</title>
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <style>
+        body {
+            background-color: #f8f9fa;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        .container {
+            margin-top: 50px;
+        }
+        .arac {
+            background-color: #f8f9fa;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            margin-bottom: 20px;
+            padding: 20px;
+            position: relative;
+            overflow: hidden;
+            transition: box-shadow 0.3s;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            height: 100%;
+        }
+        .arac img {
+            max-width: 100%;
+            height: auto;
+            border-radius: 10px;
+        }
+        .arac h2 {
+            margin-top: 15px;
+            color: #343a40;
+            font-size: 1.5rem;
+        }
+        .arac p {
+            margin: 5px 0;
+            color: #6c757d;
+        }
+        .btn-primary {
+            background-color: #007bff;
+            border-color: #007bff;
+            color: #fff;
+            transition: background-color 0.3s;
+        }
+        .btn-primary:hover {
+            background-color: #0056b3;
+            border-color: #0056b3;
+        }
+        .back-link {
+            margin-top: 20px;
+            display: inline-block;
+            color: white;
+            transition: color 0.3s;
+        }
+        .back-link:hover {
+            color: white;
+        }
+        .kirala-btn {
+            position: absolute;
+            bottom: -50px;
+            left: 50%;
+            transform: translateX(-50%);
+            transition: bottom 0.5s;
+        }
+        .arac:hover {
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+        }
+        .arac:hover .kirala-btn {
+            bottom: 30%;
+        }
+    </style>
+</head>
+<body>
+    <div class="container mt-5">
+        <h1 class="text-center mb-4">Araç Filtreleme</h1>
+        <div class="row">
+            {% for arac in filtered_cars %}
+                <div class="col-md-4 d-flex align-items-stretch">
+                    <div class="arac d-flex flex-column">
+                        {% if arac.resim %}
+                            <img src="{{ arac.resim.url }}" alt="{{ arac.marka }} {{ arac.model }}">
+                        {% else %}
+                            <img src="{% static 'images/default_car.png' %}" alt="Varsayılan Resim">
+                        {% endif %}
+                        <h2>{{ arac.marka }} {{ arac.model }}</h2>
+                        <p>Yıl: {{ arac.yil }}</p>
+                        <p>Fiyat: {{ arac.fiyat }} TL</p>
+                        {% if user.is_authenticated and request.session.user_type == 'musteri' %}
+                            <a href="{% url 'rezervasyon' arac.id %}" class="btn btn-primary kirala-btn mt-auto">Kirala</a>
+                        {% elif not user.is_authenticated %}
+                            <a href="{% url 'musteri_login' %}?next={% url 'rezervasyon' arac.id %}" class="btn btn-primary kirala-btn mt-auto">Kirala</a>
+                        {% endif %}
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.4/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+</body>
+</html>
