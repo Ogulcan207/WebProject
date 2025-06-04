@@ -58,7 +58,7 @@ import os
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [os.path.join(BASE_DIR, 'templates')],  # Bu satırı ekleyin
+        'DIRS': [os.path.join(BASE_DIR, 'templates')],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -90,7 +90,7 @@ DATABASES = {
         'ENGINE': 'django.db.backends.mysql',
         'NAME': 'rentcar',  # Veritabanı adınızı buraya yazın
         'USER': 'root',   # MySQL kullanıcı adınızı buraya yazın
-        'PASSWORD': '1234',       # MySQL şifrenizi buraya yazın
+        'PASSWORD': '123456',       # MySQL şifrenizi buraya yazın
         'HOST': 'localhost',       # Veritabanı sunucusunun adresi
         'PORT': '3306',            # MySQL'in varsayılan portu
     }

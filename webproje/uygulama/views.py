@@ -1,16 +1,13 @@
-from django.shortcuts import render
 from django.shortcuts import render, redirect, get_object_or_404
 from django.core.paginator import Paginator
 from MySQLdb import IntegrityError
-from .forms import AracForm, MusteriForm, ContactForm, RezervasyonForm, VerificationForm, Rezervasyon
-from .models import Arac, Musteri
+from .models import Arac, Musteri, Rezervasyon, ContactMessage
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.views.decorators.csrf import csrf_exempt
 from django.urls import reverse
-from .forms import UserLoginForm, UserRegisterForm, RezervasyonForm, AracForm,MusteriForm,ContactForm
-from django.contrib.auth.forms import UserCreationForm
+from .forms import UserLoginForm, UserRegisterForm, RezervasyonForm, AracForm, Musteri, MusteriForm, ContactForm, VerificationForm, Rezervasyon
+from django.contrib.auth.forms import UserCreationForm, UserChangeForm
 from django.contrib.auth import authenticate, login, logout
-from pyexpat.errors import messages
 from django.contrib.auth.models import User
 from django.contrib import messages  # Import the messages module
 from .utils import generate_verification_code, send_verification_email
@@ -19,6 +16,12 @@ from datetime import timezone
 from django.utils import timezone
 from django.http import HttpResponse, JsonResponse
 from django.db.models import Q
+from django.db import connection
+import random, string, requests
+from django.utils.html import strip_tags
+from markdown import markdown
+def anasayfa(request):
+    return render(request, 'anasayfa.html')
 
 @login_required
 def admin_arac_liste(request):
@@ -40,6 +43,13 @@ def admin_arac_liste(request):
         form = AracForm()
     
     return render(request, 'admin_arac_liste.html', {'araclar': page_obj, 'form': form})
+
+def arac_listesi(request):
+    araclar_list = Arac.objects.all()
+    paginator = Paginator(araclar_list, 3)  # Sayfa başına 6 araç
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
+    return render(request, 'arac_listesi.html', {'page_obj': page_obj})
 
 def arac_ekle(request):
     if request.method == 'POST':
@@ -86,10 +96,6 @@ def arac_guncelle(request, arac_id):
     
     return render(request, 'arac_guncelle.html', {'form': form})
 
-def hakkımızda(request):
-    return render(request, 'hakkımızda.html')
-
-
 @login_required
 def admin_musteriler(request):
     musteriler = Musteri.objects.all()
@@ -103,18 +109,6 @@ def musteri_sil(request, musteri_id):
     musteri = get_object_or_404(Musteri, id=musteri_id)
     musteri.delete()
     return redirect('admin_musteriler')
-
-@login_required
-def bilgilerimi_guncelle(request):
-    musteri = Musteri.objects.get(kullanici_adi=request.user.username)
-    if request.method == 'POST':
-        form = MusteriForm(request.POST, instance=musteri)
-        if form.is_valid():
-            form.save()
-            return redirect('musteri_paneli')
-    else:
-        form = MusteriForm(instance=musteri)
-    return render(request, 'bilgilerimi_guncelle.html', {'form': form})
 
 def user_login(request):
     if request.method == 'POST':
@@ -182,23 +176,6 @@ def musteri_register(request):
         form = MusteriForm()
     
     return render(request, 'musteri_kayıt.html', {'form': form})
-
-def iletisim(request):
-    return render(request, 'iletisim.html')
-
-def user_register(request):
-    if request.method == 'POST':
-        form = UserCreationForm(request.POST)
-        if form.is_valid():
-            user = form.save()
-            # Admin olarak kaydetmek için is_superuser ve is_staff alanlarını True yapıyoruz
-            user.is_superuser = True
-            user.is_staff = True
-            user.save()
-            return redirect('login')
-    else:
-        form = UserCreationForm()
-    return render(request, 'register.html', {'form': form})
 
 @login_required
 def rezervasyon(request, arac_id):
@@ -300,6 +277,17 @@ def dogrulama(request):
         form = VerificationForm()
     return render(request, 'dogrulama.html', {'form': form})
 
+@login_required
+def rezervasyon_iptal(request, rezervasyon_id):
+    rezervasyon = get_object_or_404(Rezervasyon, id=rezervasyon_id, musteri__kullanici_adi=request.user.username)
+    if request.method == 'POST':
+        rezervasyon.delete()
+        return redirect('mevcut_rezervasyonlar')
+    return render(request, 'rezervasyon_iptal.html', {'rezervasyon': rezervasyon})
+
+def is_admin(user):
+    return user.is_superuser
+
 def musteri_login(request):
     if request.method == 'POST':
         kullanici_adi = request.POST.get('kullanici_adi')
@@ -342,6 +330,54 @@ def admin_rezervasyon_listesi(request):
     return render(request, 'admin_rezervasyon.html', {'page_obj': page_obj})
 
 @login_required
+@user_passes_test(is_admin)
+def admin_rezervasyon_guncelle(request, rezervasyon_id):
+    rezervasyon = get_object_or_404(Rezervasyon, id=rezervasyon_id)
+    if request.method == 'POST':
+        form = RezervasyonForm(request.POST, instance=rezervasyon)
+        if form.is_valid():
+            form.save()
+            return redirect('admin_rezervasyon')
+    else:
+        form = RezervasyonForm(instance=rezervasyon)
+    return render(request, 'rezervasyon_guncelle.html', {'form': form})
+
+@login_required
+@user_passes_test(is_admin)
+def admin_rezervasyon_iptal(request, rezervasyon_id):
+    rezervasyon = get_object_or_404(Rezervasyon, id=rezervasyon_id)
+    if request.method == 'POST':
+        rezervasyon.delete()
+        return redirect('admin_rezervasyon')
+    return render(request, 'rezervasyon_iptal.html', {'rezervasyon': rezervasyon})
+
+@login_required
+def bilgilerimi_guncelle(request):
+    musteri = Musteri.objects.get(kullanici_adi=request.user.username)
+    if request.method == 'POST':
+        form = MusteriForm(request.POST, instance=musteri)
+        if form.is_valid():
+            form.save()
+            return redirect('musteri_paneli')
+    else:
+        form = MusteriForm(instance=musteri)
+    return render(request, 'bilgilerimi_guncelle.html', {'form': form})
+
+def contact_view(request):
+    if request.method == 'POST':
+        form = ContactForm(request.POST)
+        if form.is_valid():
+            form.save()
+            return redirect('contact_view')  # Başarılı iletişim sayfasına yönlendirme yapılabilir
+        else:
+            # Form geçersiz olduğunda hata mesajlarını görmek için form hatalarını ekrana yazdırın
+            print(form.errors)
+    else:
+        form = ContactForm()
+    
+    return render(request, 'iletisim.html', {'form': form})
+
+@login_required
 def mevcut_rezervasyonlar(request):
     musteri = get_object_or_404(Musteri, kullanici_adi=request.user.username)
     rezervasyonlar_list = Rezervasyon.objects.filter(musteri=musteri, bitis_tarihi__gte=timezone.now())
@@ -358,7 +394,6 @@ def musteri_paneli(request):
         return redirect('musteri_login')
     araclar = Arac.objects.all()
     return render(request, 'musteri_paneli.html', {'araclar': araclar})
-
 
 def fiyat_filtrele(request):
     if request.method == 'POST':
@@ -394,6 +429,17 @@ def fiyat_filtrele(request):
     else:
         return render(request, 'anasayfa.html')
     
+@login_required
+def rezervasyon_guncelle(request, rezervasyon_id):
+    rezervasyon = get_object_or_404(Rezervasyon, id=rezervasyon_id, musteri__kullanici_adi=request.user.username)
+    if request.method == 'POST':
+        form = RezervasyonForm(request.POST, instance=rezervasyon)
+        if form.is_valid():
+            form.save()
+            return redirect('mevcut_rezervasyonlar')
+    else:
+        form = RezervasyonForm(instance=rezervasyon)
+    return render(request, 'rezervasyon_guncelle.html', {'form': form})
 
 def kontrol_rezervasyon(request, arac_id):
     baslangic_tarihi = request.GET.get('baslangic_tarihi')
@@ -405,3 +451,75 @@ def kontrol_rezervasyon(request, arac_id):
     )
     return JsonResponse({'rezervasyonlar': list(rezervasyonlar.values())})
 
+def sikayetler_view(request):
+    complaints = ContactMessage.objects.all().order_by('-created_at')  # Assuming ContactMessage is the model for complaints
+    paginator = Paginator(complaints, 2)  # Show 10 complaints per page
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
+    return render(request, 'sikayetler.html', {'complaints': page_obj})
+
+def sikayet_olustur(request):
+    if request.method == 'POST':
+        form = ContactForm(request.POST)
+        if form.is_valid():
+            if request.user.is_authenticated:
+                musteri = Musteri.objects.get(kullanici_adi=request.user.username)
+                form.instance.name = musteri.ad  # Musteri modelinden adı al
+                form.instance.email = musteri.email  # Musteri modelinden e-posta adresini al
+                form.save()
+                return redirect('musteri_paneli')
+            else:
+                return redirect('login')
+    else:
+        musteri = Musteri.objects.get(kullanici_adi=request.user.username)
+        initial_data = {'name': musteri.ad, 'email': musteri.email}
+        form = ContactForm(initial=initial_data)
+    
+    return render(request, 'sikayet_olustur.html', {'form': form, 'musteri': musteri})
+
+def iletisim(request):
+    return render(request, 'iletisim.html')
+
+def hakkımızda(request):
+    return render(request, 'hakkımızda.html')
+
+@csrf_exempt
+def ai_chat(request):
+    if request.method == 'POST':
+        user_input = "Lütfen Türkçe karşılık verir misin ? " + request.POST.get('message')
+        if not user_input:
+            return JsonResponse({'error': 'Boş mesaj gönderildi.'})
+
+        try:
+            response = requests.post(
+                "https://api.together.xyz/v1/chat/completions",
+                headers={
+                    "Authorization": "Bearer tgp_v1_H6cNgXYCAvQGDNGODekGm11HfptE4sFsGkOYEUVnQ7Q",
+                    "Content-Type": "application/json"
+                },
+                json={
+                    "model": "deepseek-ai/DeepSeek-R1-Distill-Llama-70B-free",
+                    "messages": [{"role": "user", "content": user_input}]
+                },
+                timeout=20
+            )
+            response.encoding = 'utf-8'
+
+            if response.status_code == 200:
+                data = response.json()
+                reply_markdown = data['choices'][0]['message']['content']
+                reply_html = markdown(reply_markdown)  # HTML’ye dönüştür
+                return JsonResponse({'reply': reply_html})
+            else:
+                return JsonResponse({
+                    'error': 'API yanıtı başarısız',
+                    'status_code': response.status_code,
+                    'response': response.text
+                })
+
+        except requests.exceptions.RequestException as e:
+            return JsonResponse({'error': 'API isteği başarısız', 'detail': str(e)})
+        except Exception as e:
+            return JsonResponse({'error': 'Sunucu hatası', 'detail': str(e)})
+
+    return JsonResponse({'error': 'Sadece POST isteği desteklenmektedir'})

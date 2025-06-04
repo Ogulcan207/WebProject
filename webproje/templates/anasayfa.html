@@ -187,6 +187,11 @@
             background-color: #3498db;
             color: #ffffff;
         }
+        .navbar-nav .nav-item {
+        display: flex;
+        align-items: center;
+        }
+
     </style>
 </head>
 <body>
@@ -204,6 +209,9 @@
                     <li class="nav-item">
                         <a class="nav-link" href="{% url 'admin_paneli' %}">Giriş Yap</a>
                     </li>
+                    <li class="nav-item">
+                        <button class="btn btn-outline-light" data-toggle="modal" data-target="#chatModal">Araç Tavsiyesi</button>
+                    </li>                    
                     <li class="nav-item">
                         <a class="nav-link" href="{% url 'hakkımızda' %}">Hakkımızda</a>
                     </li>
@@ -366,5 +374,54 @@
     <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.4/dist/umd/popper.min.js"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <!-- Chat Modal -->
+<div class="modal fade" id="chatModal" tabindex="-1" role="dialog" aria-labelledby="chatModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title">Araç Tavsiye Asistanı</h5>
+          <button type="button" class="close" data-dismiss="modal"><span>&times;</span></button>
+        </div>
+        <div class="modal-body">
+          <div id="chat-box" style="max-height: 300px; overflow-y: auto;"></div>
+          <input type="text" id="user-message" class="form-control mt-3" placeholder="Mesajınızı yazın...">
+        </div>
+        <div class="modal-footer">
+          <button type="button" id="send-btn" class="btn btn-primary">Gönder</button>
+        </div>
+      </div>
+    </div>
+  </div>
+  <script>
+    document.getElementById("send-btn").onclick = function () {
+      const message = document.getElementById("user-message").value.trim();
+      if (!message) return;
+  
+      const chatBox = document.getElementById("chat-box");
+      chatBox.innerHTML += `<div><strong>Sen:</strong> ${message}</div>`;
+  
+      fetch("/ai_chat/", {
+        method: "POST",
+        headers: {
+          "X-CSRFToken": "{{ csrf_token }}",
+          "Content-Type": "application/x-www-form-urlencoded"
+        },
+        body: new URLSearchParams({ message: message })
+      })
+      .then(response => response.json())
+      .then(data => {
+        if (data.reply) {
+          chatBox.innerHTML += `<div><strong>Asistan:</strong><br>${data.reply}</div>`;
+        } else if (data.error) {
+          chatBox.innerHTML += `<div><strong>Hata:</strong> ${data.error}</div>`;
+        }
+        document.getElementById("user-message").value = "";
+        chatBox.scrollTop = chatBox.scrollHeight;
+      })
+      .catch(err => {
+        chatBox.innerHTML += `<div><strong>Hata:</strong> ${err.message}</div>`;
+      });
+    };
+  </script>  
 </body>
 </html>         
