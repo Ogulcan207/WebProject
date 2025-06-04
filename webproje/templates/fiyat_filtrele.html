@@ -51,15 +51,6 @@
             background-color: #0056b3;
             border-color: #0056b3;
         }
-        .back-link {
-            margin-top: 20px;
-            display: inline-block;
-            color: white;
-            transition: color 0.3s;
-        }
-        .back-link:hover {
-            color: white;
-        }
         .kirala-btn {
             position: absolute;
             bottom: -50px;
@@ -73,11 +64,38 @@
         .arac:hover .kirala-btn {
             bottom: 30%;
         }
+        .chat-bubble-user {
+            background-color: #e1f5fe;
+            border-radius: 10px;
+            padding: 10px;
+            margin: 10px 0;
+            text-align: right;
+        }
+        .chat-bubble-assistant {
+            background-color: #f1f8e9;
+            border-radius: 10px;
+            padding: 10px;
+            margin: 10px 0;
+            text-align: left;
+        }
+        .typing-indicator {
+            font-style: italic;
+            color: gray;
+            margin-top: 5px;
+        }
     </style>
 </head>
 <body>
     <div class="container mt-5">
         <h1 class="text-center mb-4">Araç Filtreleme</h1>
+
+        <!-- 🧠 Araç Tavsiye Asistanı Butonu -->
+        <div class="text-center mb-4">
+            <button class="btn btn-success" data-toggle="modal" data-target="#chatModal">
+                Araç Tavsiyesi Al
+            </button>
+        </div>
+
         <div class="row">
             {% for arac in filtered_cars %}
                 <div class="col-md-4 d-flex align-items-stretch">
@@ -100,8 +118,66 @@
             {% endfor %}
         </div>
     </div>
+
+    <!-- 🧠 Modal: Araç Tavsiye Asistanı -->
+    <div class="modal fade" id="chatModal" tabindex="-1" role="dialog" aria-labelledby="chatModalLabel" aria-hidden="true">
+      <div class="modal-dialog" role="document">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title">Araç Tavsiye Asistanı</h5>
+            <button type="button" class="close" data-dismiss="modal"><span>&times;</span></button>
+          </div>
+          <div class="modal-body">
+            <div id="chat-box" style="max-height: 300px; overflow-y: auto; white-space: pre-wrap;"></div>
+            <div id="typing-indicator" class="typing-indicator d-none">Asistan yazıyor...</div>
+            <input type="text" id="user-message" class="form-control mt-3" placeholder="Mesajınızı yazın...">
+          </div>
+          <div class="modal-footer">
+            <button type="button" id="send-btn" class="btn btn-primary">Gönder</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- JS -->
     <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.4/dist/umd/popper.min.js"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <script>
+      document.getElementById("send-btn").onclick = function () {
+        const message = document.getElementById("user-message").value.trim();
+        if (!message) return;
+
+        const chatBox = document.getElementById("chat-box");
+        const typing = document.getElementById("typing-indicator");
+
+        chatBox.innerHTML += `<div class="chat-bubble-user"><strong>Sen:</strong> ${message}</div>`;
+        typing.classList.remove("d-none");
+
+        fetch("/ai_chat/", {
+          method: "POST",
+          headers: {
+            "X-CSRFToken": "{{ csrf_token }}",
+            "Content-Type": "application/x-www-form-urlencoded"
+          },
+          body: new URLSearchParams({ message: message })
+        })
+        .then(response => response.json())
+        .then(data => {
+          typing.classList.add("d-none");
+          if (data.reply) {
+            chatBox.innerHTML += `<div class="chat-bubble-assistant"><strong>Asistan:</strong><br>${data.reply}</div>`;
+          } else {
+            chatBox.innerHTML += `<div class="chat-bubble-assistant"><strong>Hata:</strong> ${data.error}</div>`;
+          }
+          document.getElementById("user-message").value = "";
+          chatBox.scrollTop = chatBox.scrollHeight;
+        })
+        .catch(err => {
+          typing.classList.add("d-none");
+          chatBox.innerHTML += `<div class="chat-bubble-assistant"><strong>Hata:</strong> ${err.message}</div>`;
+        });
+      };
+    </script>
 </body>
 </html>

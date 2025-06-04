@@ -18,7 +18,8 @@ from django.http import HttpResponse, JsonResponse
 from django.db.models import Q
 from django.db import connection
 import random, string, requests
-
+from django.utils.html import strip_tags
+from markdown import markdown
 def anasayfa(request):
     return render(request, 'anasayfa.html')
 
@@ -485,7 +486,7 @@ def hakkımızda(request):
 @csrf_exempt
 def ai_chat(request):
     if request.method == 'POST':
-        user_input = request.POST.get('message')
+        user_input = "Lütfen Türkçe karşılık verir misin ? " + request.POST.get('message')
         if not user_input:
             return JsonResponse({'error': 'Boş mesaj gönderildi.'})
 
@@ -502,14 +503,19 @@ def ai_chat(request):
                 },
                 timeout=20
             )
-            response.encoding = 'utf-8'  # Türkçe karakterler için zorla UTF-8
+            response.encoding = 'utf-8'
 
             if response.status_code == 200:
                 data = response.json()
-                reply = data['choices'][0]['message']['content']
-                return JsonResponse({'reply': reply})
+                reply_markdown = data['choices'][0]['message']['content']
+                reply_html = markdown(reply_markdown)  # HTML’ye dönüştür
+                return JsonResponse({'reply': reply_html})
             else:
-                return JsonResponse({'error': 'API yanıtı başarısız', 'status_code': response.status_code, 'response': response.text})
+                return JsonResponse({
+                    'error': 'API yanıtı başarısız',
+                    'status_code': response.status_code,
+                    'response': response.text
+                })
 
         except requests.exceptions.RequestException as e:
             return JsonResponse({'error': 'API isteği başarısız', 'detail': str(e)})

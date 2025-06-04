@@ -394,25 +394,34 @@
   </div>
   <script>
     document.getElementById("send-btn").onclick = function () {
-        const message = document.getElementById("user-message").value;
-        if (!message) return;
-    
-        const chatBox = document.getElementById("chat-box");
-        chatBox.innerHTML += `<div><strong>Sen:</strong> ${message}</div>`;
-    
-        fetch("/ai_chat/", {
-            method: "POST",
-            headers: { "X-CSRFToken": "{{ csrf_token }}" },
-            body: new URLSearchParams({ message: message })
-        })
-        .then(response => response.json())
-        .then(data => {
-            chatBox.innerHTML += `<div><strong>Asistan:</strong> ${data.reply || 'Yanıt alınamadı'}</div>`;
-            document.getElementById("user-message").value = "";
-            chatBox.scrollTop = chatBox.scrollHeight;
-        });
+      const message = document.getElementById("user-message").value.trim();
+      if (!message) return;
+  
+      const chatBox = document.getElementById("chat-box");
+      chatBox.innerHTML += `<div><strong>Sen:</strong> ${message}</div>`;
+  
+      fetch("/ai_chat/", {
+        method: "POST",
+        headers: {
+          "X-CSRFToken": "{{ csrf_token }}",
+          "Content-Type": "application/x-www-form-urlencoded"
+        },
+        body: new URLSearchParams({ message: message })
+      })
+      .then(response => response.json())
+      .then(data => {
+        if (data.reply) {
+          chatBox.innerHTML += `<div><strong>Asistan:</strong><br>${data.reply}</div>`;
+        } else if (data.error) {
+          chatBox.innerHTML += `<div><strong>Hata:</strong> ${data.error}</div>`;
+        }
+        document.getElementById("user-message").value = "";
+        chatBox.scrollTop = chatBox.scrollHeight;
+      })
+      .catch(err => {
+        chatBox.innerHTML += `<div><strong>Hata:</strong> ${err.message}</div>`;
+      });
     };
-    </script>
-      
+  </script>  
 </body>
 </html>         
