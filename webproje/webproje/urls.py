@@ -59,7 +59,8 @@ urlpatterns = [
     path('sikayetler/', views.sikayetler_view, name='sikayetler'),
     path('sikayet_olustur/', views.sikayet_olustur, name='sikayet_olustur'),
     path('fiyat_filtrele/', views.fiyat_filtrele, name='fiyat_filtrele'),
-     path('kontrol_rezervasyon/<int:arac_id>/', views.kontrol_rezervasyon, name='kontrol_rezervasyon'),
+    path('kontrol_rezervasyon/<int:arac_id>/', views.kontrol_rezervasyon, name='kontrol_rezervasyon'),
+    path('ai_chat/', views.ai_chat, name='ai_chat'),
 ]
 
 if settings.DEBUG:

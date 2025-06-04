@@ -1,15 +1,13 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.core.paginator import Paginator
 from MySQLdb import IntegrityError
-from .forms import AracForm, MusteriForm, ContactForm, RezervasyonForm, VerificationForm, Rezervasyon
 from .models import Arac, Musteri, Rezervasyon, ContactMessage
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.views.decorators.csrf import csrf_exempt
 from django.urls import reverse
-from .forms import UserLoginForm, UserRegisterForm, RezervasyonForm, AracForm,MusteriForm,ContactForm, VerificationForm
+from .forms import UserLoginForm, UserRegisterForm, RezervasyonForm, AracForm, Musteri, MusteriForm, ContactForm, VerificationForm, Rezervasyon
 from django.contrib.auth.forms import UserCreationForm, UserChangeForm
 from django.contrib.auth import authenticate, login, logout
-from pyexpat.errors import messages
 from django.contrib.auth.models import User
 from django.contrib import messages  # Import the messages module
 from .utils import generate_verification_code, send_verification_email
@@ -19,7 +17,7 @@ from django.utils import timezone
 from django.http import HttpResponse, JsonResponse
 from django.db.models import Q
 from django.db import connection
-import random, string
+import random, string, requests
 
 def anasayfa(request):
     return render(request, 'anasayfa.html')
@@ -483,3 +481,39 @@ def iletisim(request):
 
 def hakkımızda(request):
     return render(request, 'hakkımızda.html')
+
+@csrf_exempt
+def ai_chat(request):
+    if request.method == 'POST':
+        user_input = request.POST.get('message')
+        if not user_input:
+            return JsonResponse({'error': 'Boş mesaj gönderildi.'})
+
+        try:
+            response = requests.post(
+                "https://api.together.xyz/v1/chat/completions",
+                headers={
+                    "Authorization": "Bearer tgp_v1_H6cNgXYCAvQGDNGODekGm11HfptE4sFsGkOYEUVnQ7Q",
+                    "Content-Type": "application/json"
+                },
+                json={
+                    "model": "deepseek-ai/DeepSeek-R1-Distill-Llama-70B-free",
+                    "messages": [{"role": "user", "content": user_input}]
+                },
+                timeout=20
+            )
+            response.encoding = 'utf-8'  # Türkçe karakterler için zorla UTF-8
+
+            if response.status_code == 200:
+                data = response.json()
+                reply = data['choices'][0]['message']['content']
+                return JsonResponse({'reply': reply})
+            else:
+                return JsonResponse({'error': 'API yanıtı başarısız', 'status_code': response.status_code, 'response': response.text})
+
+        except requests.exceptions.RequestException as e:
+            return JsonResponse({'error': 'API isteği başarısız', 'detail': str(e)})
+        except Exception as e:
+            return JsonResponse({'error': 'Sunucu hatası', 'detail': str(e)})
+
+    return JsonResponse({'error': 'Sadece POST isteği desteklenmektedir'})
