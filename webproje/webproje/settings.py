@@ -89,9 +89,9 @@ DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
         'NAME': 'rentcar',  # Veritabanı adınızı buraya yazın
-        'USER': 'root',   # MySQL kullanıcı adınızı buraya yazın
-        'PASSWORD': '123456',       # MySQL şifrenizi buraya yazın
-        'HOST': 'localhost',       # Veritabanı sunucusunun adresi
+        'USER': 'user',   # MySQL kullanıcı adınızı buraya yazın
+        'PASSWORD': 'password',       # MySQL şifrenizi buraya yazın
+        'HOST': 'db',       # Veritabanı sunucusunun adresi
         'PORT': '3306',            # MySQL'in varsayılan portu
     }
 }
