@@ -1,3 +1,16 @@
+from django.shortcuts import render
+from django.shortcuts import render, redirect, get_object_or_404
+from django.core.paginator import Paginator
+from MySQLdb import IntegrityError
+from .forms import AracForm, MusteriForm, ContactForm, RezervasyonForm, VerificationForm, Rezervasyon
+from .models import Arac, Musteri
+from django.contrib.auth.decorators import login_required, user_passes_test
+from django.views.decorators.csrf import csrf_exempt
+from django.urls import reverse
+from .forms import UserLoginForm, UserRegisterForm, RezervasyonForm, AracForm,MusteriForm,ContactForm
+from django.contrib.auth.forms import UserCreationForm
+from django.contrib.auth import authenticate, login, logout
+from pyexpat.errors import messages
 from django.shortcuts import render, redirect, get_object_or_404
 from django.core.paginator import Paginator
 from MySQLdb import IntegrityError
@@ -14,12 +27,14 @@ from .utils import generate_verification_code, send_verification_email
 from django.core.mail import send_mail
 from datetime import timezone
 from django.utils import timezone
+from django.contrib.admin.views.decorators import staff_member_required
 from django.http import HttpResponse, JsonResponse
 from django.db.models import Q
 from django.db import connection
 import random, string, requests
 from django.utils.html import strip_tags
 from markdown import markdown
+
 def anasayfa(request):
     return render(request, 'anasayfa.html')
 
@@ -27,13 +42,13 @@ def anasayfa(request):
 def admin_arac_liste(request):
     if not request.user.is_staff:
         return redirect('login')
-    
+
     araclar_list = Arac.objects.all()
-    
-    paginator = Paginator(araclar_list, 2)  # 2 araç per sayfa
+    paginator = Paginator(araclar_list, 2)
     page_number = request.GET.get('page')
     page_obj = paginator.get_page(page_number)
-    
+
+
     if request.method == 'POST':
         form = AracForm(request.POST, request.FILES)
         if form.is_valid():
@@ -41,8 +56,9 @@ def admin_arac_liste(request):
             return redirect('admin_arac_liste')
     else:
         form = AracForm()
-    
+
     return render(request, 'admin_arac_liste.html', {'araclar': page_obj, 'form': form})
+
 
 def arac_listesi(request):
     araclar_list = Arac.objects.all()
@@ -51,6 +67,7 @@ def arac_listesi(request):
     page_obj = paginator.get_page(page_number)
     return render(request, 'arac_listesi.html', {'page_obj': page_obj})
 
+@staff_member_required
 def arac_ekle(request):
     if request.method == 'POST':
         form = AracForm(request.POST, request.FILES)
@@ -61,7 +78,11 @@ def arac_ekle(request):
         form = AracForm()
     return render(request, 'arac_ekle.html', {'form': form})
 
+@login_required
 def arac_sil(request, arac_id):
+    if not request.user.is_staff:
+        return redirect('login')
+      
     arac = get_object_or_404(Arac, id=arac_id)
     if request.method == 'POST':
         arac.delete()
@@ -80,10 +101,12 @@ def admin_arac_sil(request, arac_id):
 def admin_paneli(request):
     if request.session.get('user_type') != 'admin':
         return redirect('login')
+
     araclar = Arac.objects.all()
     return render(request, 'admin_paneli.html', {'araclar': araclar})
 
 @login_required
+@staff_member_required
 def arac_guncelle(request, arac_id):
     arac = get_object_or_404(Arac, id=arac_id)
     if request.method == 'POST':
@@ -98,14 +121,21 @@ def arac_guncelle(request, arac_id):
 
 @login_required
 def admin_musteriler(request):
+    if not request.user.is_staff:
+        return redirect('login')
+
     musteriler = Musteri.objects.all()
-    paginator = Paginator(musteriler, 1)  # Sayfa başına 6 araç
+    paginator = Paginator(musteriler, 1)
+
     page_number = request.GET.get('page')
     page_obj = paginator.get_page(page_number)
     return render(request, 'admin_musteriler.html', {'page_obj': page_obj})
 
 @login_required
 def musteri_sil(request, musteri_id):
+    if not request.user.is_staff:
+        return redirect('login')
+
     musteri = get_object_or_404(Musteri, id=musteri_id)
     musteri.delete()
     return redirect('admin_musteriler')
@@ -319,12 +349,11 @@ def musteri_rezer(request):
 
 @login_required
 def admin_rezervasyon_listesi(request):
-
     if not request.user.is_staff:
         return redirect('login')
     
     rezervasyonlar = Rezervasyon.objects.all()
-    paginator = Paginator(rezervasyonlar, 2)  # Sayfa başına 6 araç
+    paginator = Paginator(rezervasyonlar, 2)
     page_number = request.GET.get('page')
     page_obj = paginator.get_page(page_number)
     return render(request, 'admin_rezervasyon.html', {'page_obj': page_obj})

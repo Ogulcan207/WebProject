@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Araç Ekle</title>
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+</head>
+<body style="background-color: #f8f9fa;"> <!-- Sayfa arka plan rengi -->
+    {% if user.is_staff %}
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+        <a class="navbar-brand" href="{% url 'anasayfa' %}">Rent a Car</a>
+        <div class="collapse navbar-collapse">
+            <ul class="navbar-nav ml-auto">
+                <li class="nav-item">
+                    <a class="nav-link" href="{% url 'arac_listesi' %}">Araç Listesi</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="{% url 'admin_paneli' %}">Admin Paneli</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="{% url 'rezervasyon' %}">Rezervasyon Yap</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="{% url 'login' %}">Giriş Yap</a>
+                </li>
+            </ul>
+        </div>
+    </nav>
+    <div class="container mt-5">
+        <h1 class="text-center">Yeni Araç Ekle</h1>
+        <div class="row justify-content-center">
+            <div class="col-md-6">
+                <form method="post" class="bg-light p-4 rounded shadow-sm">
+                    {% csrf_token %}
+                    {{ form.as_p }}
+                    <button type="submit" class="btn btn-primary btn-block">Kaydet</button>
+                </form>
+                <div class="text-center mt-3">
+                    <a href="{% url 'arac_listesi' %}" class="btn btn-secondary">Araç Listesi</a>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% else %}
+    <div class="container mt-5">
+        <div class="alert alert-danger text-center">
+            Bu sayfaya erişim yetkiniz yok.
+        </div>
+    </div>
+    {% endif %}
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.4/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+</body>
+</html>
