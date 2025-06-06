@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Rezervasyon Yap</title>
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <style>
+        body {
+            background-color: #e9ecef;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        .container {
+            margin-top: 20px;
+        }
+        .form-container {
+            background-color: #ffffff;
+            border-radius: 8px;
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+            padding: 30px;
+        }
+        .form-container h1 {
+            margin-bottom: 20px;
+            font-size: 2rem;
+            font-weight: 600;
+            color: #343a40;
+        }
+        .btn-primary {
+            background-color: #007bff;
+            border-color: #007bff;
+            font-size: 1.1rem;
+            padding: 10px 15px;
+        }
+        .btn-primary:hover {
+            background-color: #0056b3;
+            border-color: #004085;
+        }
+        .form-group label {
+            font-weight: bold;
+        }
+        .form-group input {
+            border-radius: 5px;
+            border: 1px solid #ced4da;
+        }
+        .form-group input:focus {
+            border-color: #007bff;
+            box-shadow: 0 0 0 0.2rem rgba(38, 143, 255, 0.25);
+        }
+        .arac-resim {
+            max-width: 100%;
+            height: auto;
+            border-radius: 10px;
+            margin-bottom: 20px;
+        }
+        .arac-fiyat {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #28a745;
+            margin-bottom: 20px;
+        }
+        .invalid-date {
+            border-color: red;
+        }
+    </style>
+</head>
+<body>
+    <div class="container mt-5">
+        <div class="row justify-content-center">
+            <div class="col-md-8 col-lg-6">
+                <div class="form-container">
+                    <h1 class="text-center">Rezervasyon Yap</h1>
+                    <div class="text-center">
+                        {% if arac.resim %}
+                            <img src="{{ arac.resim.url }}" alt="{{ arac.marka }} {{ arac.model }}" class="arac-resim">
+                        {% else %}
+                            <img src="{% static 'images/default_car.png' %}" alt="Varsayılan Resim" class="arac-resim">
+                        {% endif %}
+                    </div>
+                    <div class="arac-fiyat text-center">
+                        Fiyat: {{ arac.fiyat }} TL
+                    </div>
+                    <form method="post" action="{% url 'rezervasyon' arac.id %}" onsubmit="return validateDates()">
+                        {% csrf_token %}
+                        <div class="form-group">
+                            <label for="id_baslangic_tarihi">Başlangıç Tarihi:</label>
+                            <input type="date" class="form-control" id="id_baslangic_tarihi" name="baslangic_tarihi" value="{{ form.initial.baslangic_tarihi|default_if_none:"" }}" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="id_bitis_tarihi">Bitiş Tarihi:</label>
+                            <input type="date" class="form-control" id="id_bitis_tarihi" name="bitis_tarihi" value="{{ form.initial.bitis_tarihi|default_if_none:"" }}" required>
+                        </div>
+                        <button type="submit" class="btn btn-primary btn-block">Rezervasyon Yap</button>
+                        <a href="{% url 'musteri_paneli' %}" class="btn btn-secondary back-link mt-3">Anasayfa</a>
+                    </form>
+                    
+                    <div id="rezervasyon-uyarisi" class="alert alert-danger mt-3" style="display: none;">
+                        Seçtiğiniz tarihler arasında bu araç zaten rezerve edilmiştir.
+                    </div>
+                    
+                    <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+                    <script>
+                        document.addEventListener('DOMContentLoaded', function() {
+                            var selected_start_date = '{{ start_date }}'; // Burada fiyat_filtrele.html dosyasından seçilen başlangıç tarihini alın
+                            var selected_end_date = '{{ end_date }}'; // Burada fiyat_filtrele.html dosyasından seçilen bitiş tarihini alın
+                            
+                            document.getElementById('id_baslangic_tarihi').value = selected_start_date;
+                            document.getElementById('id_bitis_tarihi').value = selected_end_date;
+                        });
+                    
+                        function validateDates() {
+                            var baslangicTarihi = document.getElementById("id_baslangic_tarihi").value;
+                            var bitisTarihi = document.getElementById("id_bitis_tarihi").value;
+                    
+                            if (new Date(baslangicTarihi) > new Date(bitisTarihi)) {
+                                alert("Bitiş tarihi, başlangıç tarihinden önce olamaz.");
+                                return false;
+                            }
+                            return true;
+                        }
+
+                        $(document).ready(function() {
+                            $('#id_baslangic_tarihi, #id_bitis_tarihi').on('change', function() {
+                                var baslangic_tarihi = $('#id_baslangic_tarihi').val();
+                                var bitis_tarihi = $('#id_bitis_tarihi').val();
+                                if (baslangic_tarihi && bitis_tarihi) {
+                                    $.ajax({
+                                        url: "{% url 'kontrol_rezervasyon' arac.id %}",
+                                        data: {
+                                            'baslangic_tarihi': baslangic_tarihi,
+                                            'bitis_tarihi': bitis_tarihi
+                                        },
+                                        success: function(data) {
+                                            if (data.rezervasyonlar.length > 0) {
+                                                $('#id_baslangic_tarihi, #id_bitis_tarihi').addClass('invalid-date');
+                                                $('#rezervasyon-uyarisi').show();
+                                            } else {
+                                                $('#id_baslangic_tarihi, #id_bitis_tarihi').removeClass('invalid-date');
+                                                $('#rezervasyon-uyarisi').hide();
+                                            }
+                                        }
+                                    });
+                                }
+                            });
+                        });
+                    </script>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+</body>
+</html>

@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Müşteri Kayıt</title>
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <style>
+        body {
+            background-color: #f8f9fa;
+        }
+        .container {
+            margin-top: 50px;
+        }
+        .form-container {
+            background-color: white;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            padding: 20px;
+        }
+        .btn-primary {
+            margin-top: 10px;
+        }
+        .alert {
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container mt-5">
+        <h1 class="text-center mb-4">Müşteri Kayıt</h1>
+        <div class="row justify-content-center">
+            <div class="col-md-6">
+                <div class="form-container">
+                    <form method="post" action="{% url 'musteri_kayit' %}">
+                        {% csrf_token %}
+                        <div class="form-group">
+                            <label for="ad">Ad:</label>
+                            <input type="text" id="ad" name="ad" class="form-control" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="soyad">Soyad:</label>
+                            <input type="text" id="soyad" name="soyad" class="form-control" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="tc">TC Kimlik Numarası:</label>
+                            <input type="text" id="tc" name="tc" class="form-control" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="kullanici_adi">Kullanıcı Adı:</label>
+                            <input type="text" id="kullanici_adi" name="kullanici_adi" class="form-control" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="sifre">Şifre:</label>
+                            <input type="password" id="sifre" name="sifre" class="form-control" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="email">E-posta:</label>
+                            <input type="email" id="email" name="email" class="form-control" required>
+                        </div>
+                        <button type="submit" class="btn btn-primary btn-block">Kayıt Ol</button>
+                    </form>
+                    {% if form.errors %}
+                        <div class="alert alert-danger">
+                            {{ form.errors }}
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+    <a href="{% url 'musteri_login' %}" class="btn btn-secondary back-link">Geri Dön</a>
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.4/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+</body>
+</html>

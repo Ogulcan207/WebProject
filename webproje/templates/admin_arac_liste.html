@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Admin Araç Listesi</title>
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <style>
+        body {
+            background: #e2e8f0; /* Lighter blue-grey background */
+            color: #333; /* Dark text for better readability */
+        }
+        .container {
+            margin-top: 50px;
+        }
+        .arac {
+            background-color: #ffffff; /* White card background */
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            margin-bottom: 20px;
+            padding: 20px;
+            color: #333; /* Dark text for better readability */
+        }
+        .arac img {
+            max-width: 100%;
+            height: auto;
+            border-radius: 10px;
+            border: none;
+        }
+        .arac h2 {
+            margin-top: 15px;
+            color: #333; /* Dark text */
+        }
+        .arac p {
+            margin: 5px 0;
+            color: #555; /* Slightly lighter text */
+            font-size: 1.2rem;
+        }
+        .form-container p {
+            color: #333; /* Dark text */
+        }
+        .form-container h2 {
+            color: #333; /* Dark text */
+        }
+        .btn-danger {
+            margin-top: 10px;
+        }
+        .form-container {
+            background-color: #ffffff; /* White form background */
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            padding: 20px;
+            color: #333; /* Dark text for better readability */
+            border: none;
+        }
+        .btn-primary {
+            margin-top: 10px;
+            background-color: #3498db;
+            border-color: #2980b9;
+        }
+        .btn-primary:hover {
+            background-color: #2980b9;
+            border-color: #1f618d;
+        }
+        .btn-secondary {
+            background-color: #95a5a6;
+            border-color: #7f8c8d;
+        }
+        .btn-secondary:hover {
+            background-color: #7f8c8d;
+            border-color: #707b7c;
+        }
+        .pagination .page-link {
+            background-color: #3498db;
+            color: #fff;
+            border: 1px solid #2980b9;
+        }
+        .pagination .page-link:hover {
+            background-color: #2980b9;
+            color: #fff;
+        }
+        .pagination .page-item.active .page-link {
+            background-color: #1f618d;
+            border-color: #1f618d;
+        }
+        .back-link {
+            margin-top: 20px;
+            display: inline-block;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1 class="text-center mb-4">Mevcut Araçlar</h1>
+        <div class="row">
+            <div class="col-md-8">
+                <div class="arac-listesi">
+                    {% for arac in araclar %}
+                        <div class="arac">
+                            <a href="{% url 'arac_guncelle' arac.id %}" style="border: none;">
+                                {% if arac.resim %}
+                                    <img src="{{ arac.resim.url }}" alt="{{ arac.marka }} {{ arac.model }}">
+                                {% else %}
+                                    <img src="{% static 'images/default_car.png' %}" alt="Varsayılan Resim">
+                                {% endif %}
+                                <h2>{{ arac.marka }} {{ arac.model }}</h2>
+                            </a>
+                            <p>Yıl: {{ arac.yil }}</p>
+                            <p>Fiyat: {{ arac.fiyat }} TL</p>
+                            <form method="post" action="{% url 'admin_arac_sil' arac.id %}">
+                                {% csrf_token %}
+                                <button type="submit" class="btn btn-danger">Sil</button>
+                            </form>
+                        </div>
+                    {% endfor %}
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="form-container">
+                    <h2>Yeni Araç Ekle</h2>
+                    <form method="post" enctype="multipart/form-data" class="mt-3">
+                        {% csrf_token %}
+                        {{ form.as_p }}
+                        <button type="submit" class="btn btn-primary btn-block mt-3">Kaydet</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+        <!-- Pagination -->
+        <nav aria-label="Page navigation example">
+            <ul class="pagination justify-content-center mt-4">
+                {% if araclar.has_previous %}
+                    <li class="page-item"><a class="page-link" href="?page={{ araclar.previous_page_number }}">Önceki</a></li>
+                {% else %}
+                    <li class="page-item disabled"><span class="page-link">Önceki</span></li>
+                {% endif %}
+                {% for num in araclar.paginator.page_range %}
+                    <li class="page-item {% if num == araclar.number %}active{% endif %}"><a class="page-link" href="?page={{ num }}">{{ num }}</a></li>
+                {% endfor %}
+                {% if araclar.has_next %}
+                    <li class="page-item"><a class="page-link" href="?page={{ araclar.next_page_number }}">Sonraki</a></li>
+                {% else %}
+                    <li class="page-item disabled"><span class="page-link">Sonraki</span></li>
+                {% endif %}
+            </ul>
+        </nav>
+        <!-- Back link -->
+        <a href="{% url 'admin_paneli' %}" class="btn btn-secondary back-link">Geri Dön</a>
+    </div>
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.4/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+</body>
+</html>

@@ -1,0 +1,107 @@
+<!-- iletisim.html -->
+
+<!DOCTYPE html>
+<html>
+<head>
+    <title>İletişim</title>
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <style>
+        body {
+            background-color: #f8f9fa;
+        }
+        .container {
+            margin-top: 50px;
+        }
+        .contact-section {
+            background: #fff;
+            padding: 40px;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+        .contact-section h1 {
+            font-size: 2.5rem;
+            margin-bottom: 20px;
+        }
+        .contact-section p {
+            font-size: 1.1rem;
+            line-height: 1.6;
+            margin-bottom: 20px;
+        }
+        .contact-section img {
+            max-width: 100%;
+            height: auto;
+            border-radius: 10px;
+            margin-bottom: 20px;
+        }
+        .contact-info {
+            margin-bottom: 20px;
+        }
+        .contact-info h2 {
+            font-size: 1.5rem;
+            margin-bottom: 10px;
+        }
+        .contact-info p {
+            font-size: 1.1rem;
+            margin-bottom: 5px;
+        }
+        .form-container {
+            background-color: white;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            padding: 20px;
+        }
+        .btn-primary {
+            margin-top: 10px;
+        }
+        .back-link {
+            margin-top: 20px;
+            display: inline-block;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="contact-section">
+            <h1 class="text-center">İletişim</h1>
+            <div class="row">
+                <div class="col-md-6 contact-info">
+                    <h2>Adres</h2>
+                    <p>Şekerpınar mahallesi Anadolu Caddesi no:25/1,</p>
+                    <p>Giresun, Türkiye</p>
+                    <h2>Telefon</h2>
+                    <p>+90 534 827 05 79</p>
+                    <h2>E-posta</h2>
+                    <p>info@zivalirentacar.com</p>
+                </div>
+                <div class="col-md-6">
+                    <div class="form-container">
+                        <h2>Bize Ulaşın</h2>
+                        <form method="post" action="{% url 'contact_view' %}"> <!-- Eklenen action attribute -->
+                            {% csrf_token %}
+                            <div class="form-group">
+                                <label for="name">Adınız</label>
+                                <input type="text" class="form-control" id="name" name="name" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="email">E-posta</label>
+                                <input type="email" class="form-control" id="email" name="email" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="message">Mesajınız</label>
+                                <textarea class="form-control" id="message" name="message" rows="5" required></textarea>
+                            </div>
+                            <button type="submit" class="btn btn-primary btn-block">Gönder</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <a href="{% url 'anasayfa' %}" class="btn btn-secondary back-link">Ana Sayfa</a>
+    </div>
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.4/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrap.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+</body>
+</html>
