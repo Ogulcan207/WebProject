@@ -32,7 +32,7 @@ services:
     ports:
       - "3307:3306"  # localhost:3307 → container:3306
     volumes:
-      - db_data:/var/lib/mysql
+      - ./rentcar:/docker-entrypoint-initdb.d
 
 volumes:
   db_data:
