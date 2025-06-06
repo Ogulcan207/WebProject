@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Araç Listesi</title>
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <style>
+        body {
+            background-color: #f8f9fa;
+        }
+        .container {
+            margin-top: 50px;
+        }
+        .arac {
+            background-color: white;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            margin-bottom: 20px;
+            padding: 20px;
+            position: relative;
+            overflow: hidden;
+        }
+        .arac img {
+            max-width: 100%;
+            height: auto;
+            border-radius: 10px;
+        }
+        .arac h2 {
+            margin-top: 15px;
+        }
+        .arac p {
+            margin: 5px 0;
+        }
+        .kirala-btn {
+            position: absolute;
+            bottom: -50px;
+            left: 50%;
+            transform: translateX(-50%);
+            transition: bottom 0.5s;
+        }
+        .arac:hover .kirala-btn {
+            bottom: 30%;
+        }
+        .chat-bubble-user {
+            background-color: #e1f5fe;
+            border-radius: 10px;
+            padding: 10px;
+            margin: 10px 0;
+            text-align: right;
+        }
+        .chat-bubble-assistant {
+            background-color: #f1f8e9;
+            border-radius: 10px;
+            padding: 10px;
+            margin: 10px 0;
+            text-align: left;
+        }
+        .typing-indicator {
+            font-style: italic;
+            color: gray;
+            margin-top: 5px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1 class="text-center mb-4">Mevcut Araçlar</h1>
+
+        <!-- Tavsiye Butonu -->
+        <div class="text-center mb-4">
+            <button class="btn btn-success" data-toggle="modal" data-target="#chatModal">
+                Araç Tavsiyesi Al
+            </button>
+        </div>
+
+        <div class="row">
+            {% for arac in page_obj %}
+                <div class="col-md-4">
+                    <div class="arac">
+                        {% if arac.resim %}
+                            <img src="{{ arac.resim.url }}" alt="{{ arac.marka }} {{ arac.model }}">
+                        {% else %}
+                            <img src="{% static 'images/default_car.png' %}" alt="Varsayılan Resim">
+                        {% endif %}
+                        <h2>{{ arac.marka }} {{ arac.model }}</h2>
+                        <p>Yıl: {{ arac.yil }}</p>
+                        <p>Fiyat: {{ arac.fiyat }} TL</p>
+                        {% if user.is_authenticated %}
+                            <a href="{% url 'rezervasyon' arac.id %}" class="btn btn-primary kirala-btn">Kirala</a>
+                        {% else %}
+                            <a href="{% url 'musteri_login' %}?next={% url 'rezervasyon' arac.id %}" class="btn btn-primary kirala-btn">Kirala</a>
+                        {% endif %}
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+
+        <nav aria-label="Page navigation">
+            <ul class="pagination justify-content-center">
+                {% if page_obj.has_previous %}
+                    <li class="page-item"><a class="page-link" href="?page=1">&laquo; İlk</a></li>
+                    <li class="page-item"><a class="page-link" href="?page={{ page_obj.previous_page_number }}">Önceki</a></li>
+                {% endif %}
+                <li class="page-item disabled"><span class="page-link">Sayfa {{ page_obj.number }} / {{ page_obj.paginator.num_pages }}</span></li>
+                {% if page_obj.has_next %}
+                    <li class="page-item"><a class="page-link" href="?page={{ page_obj.next_page_number }}">Sonraki</a></li>
+                    <li class="page-item"><a class="page-link" href="?page={{ page_obj.paginator.num_pages }}">Son &raquo;</a></li>
+                {% endif %}
+            </ul>
+        </nav>
+
+        <a href="{% url 'musteri_paneli' %}" class="btn btn-secondary mt-3">Ana Sayfa</a>
+    </div>
+
+    <!-- Modal: Araç Tavsiye Asistanı -->
+    <div class="modal fade" id="chatModal" tabindex="-1" role="dialog" aria-labelledby="chatModalLabel" aria-hidden="true">
+      <div class="modal-dialog" role="document">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title">Araç Tavsiye Asistanı</h5>
+            <button type="button" class="close" data-dismiss="modal"><span>&times;</span></button>
+          </div>
+          <div class="modal-body">
+            <div id="chat-box" style="max-height: 300px; overflow-y: auto; white-space: pre-wrap;"></div>
+            <div id="typing-indicator" class="typing-indicator d-none">Asistan yazıyor...</div>
+            <input type="text" id="user-message" class="form-control mt-3" placeholder="Mesajınızı yazın...">
+          </div>
+          <div class="modal-footer">
+            <button type="button" id="send-btn" class="btn btn-primary">Gönder</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- JS -->
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.4/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <script>
+      document.getElementById("send-btn").onclick = function () {
+        const message = document.getElementById("user-message").value.trim();
+        if (!message) return;
+
+        const chatBox = document.getElementById("chat-box");
+        const typing = document.getElementById("typing-indicator");
+
+        chatBox.innerHTML += `<div class="chat-bubble-user"><strong>Sen:</strong> ${message}</div>`;
+        typing.classList.remove("d-none");
+
+        fetch("/ai_chat/", {
+          method: "POST",
+          headers: {
+            "X-CSRFToken": "{{ csrf_token }}",
+            "Content-Type": "application/x-www-form-urlencoded"
+          },
+          body: new URLSearchParams({ message: message })
+        })
+        .then(response => response.json())
+        .then(data => {
+          typing.classList.add("d-none");
+          if (data.reply) {
+            chatBox.innerHTML += `<div class="chat-bubble-assistant"><strong>Asistan:</strong><br>${data.reply}</div>`;
+          } else {
+            chatBox.innerHTML += `<div class="chat-bubble-assistant"><strong>Hata:</strong> ${data.error}</div>`;
+          }
+          document.getElementById("user-message").value = "";
+          chatBox.scrollTop = chatBox.scrollHeight;
+        })
+        .catch(err => {
+          typing.classList.add("d-none");
+          chatBox.innerHTML += `<div class="chat-bubble-assistant"><strong>Hata:</strong> ${err.message}</div>`;
+        });
+      };
+    </script>
+</body>
+</html>

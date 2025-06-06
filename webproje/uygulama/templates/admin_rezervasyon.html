@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Admin Rezervasyon Listesi</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <style>
+        body {
+            background: #9ca3af; /* Light grey background */
+            color: #333; /* Dark text for better readability */
+        }
+        .container {
+            margin-top: 50px;
+            background-color: #f8f9fa; /* Table background color */
+            border-radius: 10px; /* Rounded corners */
+            padding: 20px; /* Padding */
+            color: #333; /* Dark text for better readability */
+        }
+        .table th, .table td {
+            vertical-align: middle;
+        }
+        .btn-back {
+            margin-top: 20px;
+            background-color: #6c757d; /* Dark grey button */
+            border-color: #5a6268; /* Darker grey border */
+            color: #fff; /* White text */
+        }
+        .btn-back:hover {
+            background-color: #5a6268; /* Darker grey on hover */
+            border-color: #4e555b; /* Even darker grey border on hover */
+        }
+        .btn-group .btn-primary {
+            background-color: #007bff; /* Blue button */
+            border-color: #007bff; /* Blue border */
+            color: #fff; /* White text */
+        }
+        .btn-group .btn-primary:hover {
+            background-color: #0056b3; /* Darker blue on hover */
+            border-color: #004085; /* Even darker blue border on hover */
+        }
+        .btn-group .btn-danger {
+            background-color: #dc3545; /* Red button */
+            border-color: #dc3545; /* Red border */
+            color: #fff; /* White text */
+        }
+        .btn-group .btn-danger:hover {
+            background-color: #c82333; /* Darker red on hover */
+            border-color: #bd2130; /* Even darker red border on hover */
+        }
+        .pagination {
+            display: flex;
+            justify-content: center;
+            margin-top: 20px;
+        }
+        .pagination .page-link {
+            background-color: #f8f9fa; /* Light background */
+            color: #333; /* Dark text */
+            border: 1px solid #dee2e6; /* Light border */
+        }
+        .pagination .page-link:hover {
+            background-color: #e9ecef; /* Slightly darker background on hover */
+            color: #333; /* Dark text */
+        }
+        .pagination .page-item.active .page-link {
+            background-color: #007bff; /* Blue background for active page */
+            border-color: #007bff; /* Blue border for active page */
+            color: #fff; /* White text for active page */
+        }
+    </style>
+</head>
+<body>
+    {% if user.is_staff %}
+    <div class="container mt-5">
+        <h1 class="text-center">Mevcut Rezervasyonlar</h1>
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Müşteri</th>
+                    <th>Araç</th>
+                    <th>Başlangıç Tarihi</th>
+                    <th>Bitiş Tarihi</th>
+                    <th>Fiyat</th>
+                    <th>İşlemler</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for rezervasyon in page_obj %}
+                <tr>
+                    <td>{{ rezervasyon.id }}</td>
+                    <td>{{ rezervasyon.musteri.kullanici_adi }}</td>
+                    <td>{{ rezervasyon.arac.model }}</td>
+                    <td>{{ rezervasyon.baslangic_tarihi }}</td>
+                    <td>{{ rezervasyon.bitis_tarihi }}</td>
+                    <td>{{ rezervasyon.fiyat }} TL</td>
+                    <td>
+                        <div class="btn-group">
+                            <a href="{% url 'rezervasyon_guncelle' rezervasyon.id %}" class="btn btn-primary">Güncelle</a>
+                            <a href="{% url 'admin_rezervasyon_iptal' rezervasyon.id %}" class="btn btn-danger">İptal Et</a>
+                        </div>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+
+        <div class="pagination">
+            <span class="step-links">
+                {% if page_obj.has_previous %}
+                    <a href="?page=1">&laquo; İlk</a>
+                    <a href="?page={{ page_obj.previous_page_number }}">Önceki</a>
+                {% endif %}
+
+                <span class="current">
+                    Sayfa {{ page_obj.number }} / {{ page_obj.paginator.num_pages }}
+                </span>
+
+                {% if page_obj.has_next %}
+                    <a href="?page={{ page_obj.next_page_number }}">Sonraki</a>
+                    <a href="?page={{ page_obj.paginator.num_pages }}">Son &raquo;</a>
+                {% endif %}
+            </span>
+        </div>
+
+        <a href="{% url 'admin_paneli' %}" class="btn btn-back">Geri Dön</a>
+    </div>
+    {% else %}
+    <div class="container mt-5">
+        <div class="alert alert-danger text-center">
+            Bu sayfaya erişim yetkiniz yok.
+        </div>
+    </div>
+    {% endif %}
+
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.4/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.amazonaws.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+</body>
+</html>

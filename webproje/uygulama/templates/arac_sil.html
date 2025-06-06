@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Araç Sil</title>
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+</head>
+<body>
+    {% if user.is_staff %}
+    <div class="container mt-5">
+        <h1 class="text-center">Araç Sil</h1>
+        <div class="row justify-content-center">
+            <div class="col-md-6">
+                <p>{{ arac.marka }} {{ arac.model }} aracını silmek istediğinizden emin misiniz?</p>
+                <form method="post">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-danger">Evet, Sil</button>
+                    <a href="{% url 'arac_listesi' %}" class="btn btn-secondary">Hayır, Geri Dön</a>
+                </form>
+            </div>
+        </div>
+    </div>
+    {% else %}
+    <div class="container mt-5">
+        <div class="alert alert-danger text-center">
+            Bu sayfaya erişim yetkiniz yok.
+        </div>
+    </div>
+    {% endif %}
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.4/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+</body>
+</html>

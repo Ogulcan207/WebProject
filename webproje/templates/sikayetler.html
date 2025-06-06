@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Şikayetler</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #e5e7eb;
+            margin: 20px;
+            padding: 20px;
+        }
+        h1 {
+            color: #343a40;
+            text-align: center;
+        }
+        ul {
+            list-style-type: none;
+            padding: 0;
+        }
+        .complaint {
+            background-color: #fff;
+            margin-bottom: 20px;
+            padding: 15px;
+            border-radius: 5px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+        strong {
+            color: #334155;
+            font-size: 1.2rem;
+        }
+        .btn-back {
+            display: block;
+            width: 100px;
+            margin-top: 20px;
+            text-align: center;
+            background-color: #007bff;
+            color: #fff;
+            padding: 10px;
+            border-radius: 5px;
+            text-decoration: none;
+        }
+        .pagination {
+            display: flex;
+            justify-content: center;
+            margin-top: 20px;
+        }
+        .page-link {
+            padding: 5px 10px;
+            margin: 0 5px;
+            background-color: #e5e7eb;
+            color: #fff;
+            text-decoration: none;
+            border-radius: 5px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Şikayetler</h1>
+    <ul>
+        {% for complaint in complaints %}
+            <li class="complaint">
+                <strong>Name:</strong> {{ complaint.name }} <br>
+                <strong>Mail:</strong> {{ complaint.email }} <br>
+                <strong>Message:</strong> {{ complaint.message }} <br>
+                <strong>Date:</strong> {{ complaint.created_at }} <br>
+            </li>
+        {% endfor %}
+    </ul>
+    <div class="pagination">
+        {% if complaints.has_previous %}
+            <a href="?page=1" class="page-link">İlk</a>
+            <a href="?page={{ complaints.previous_page_number }}" class="page-link">Önceki</a>
+        {% endif %}
+        <span>Sayfa {{ complaints.number }} / {{ complaints.paginator.num_pages }}</span>
+        {% if complaints.has_next %}
+            <a href="?page={{ complaints.next_page_number }}" class="page-link">Sonraki</a>
+            <a href="?page={{ complaints.paginator.num_pages }}" class="page-link">Son</a>
+        {% endif %}
+    </div>
+    <a href="{% url 'admin_paneli' %}" class="btn btn-primary btn-back">Geri Dön</a>
+</body>
+</html>
