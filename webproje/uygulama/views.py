@@ -515,7 +515,7 @@ def hakkımızda(request):
 @csrf_exempt
 def ai_chat(request):
     if request.method == 'POST':
-        user_input = "Lütfen Türkçe karşılık verir misin ? " + request.POST.get('message')
+        user_input = request.POST.get('message') + " Lütfen Türkçe karşılık verir misin ? Bir de kısa cevap ver"
         if not user_input:
             return JsonResponse({'error': 'Boş mesaj gönderildi.'})
 
