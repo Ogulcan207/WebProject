@@ -42,7 +42,7 @@ Bu projede bir araç kiralama sisteminin web tabanlı versiyonu geliştirilecekt
 | 4  | Yetki Kontrolü (RBAC)      | Ömer Şimşek                | `feature-rbac`      | `@user_passes_test`                    |
 | 5  | Yetkilendirme (Login/Auth) | Ubeydullah Gür (220201039) | `feature-auth`      | login / logout / auth                  |
 | 6  | Session / Cookie Yönetimi  | Ubeydullah Gür             | `feature-session`   | `request.session` kullanımı            |
-| 7  | Web Güvenlik               | Adem Alperen Arda          | `feature-security`  | CSRF, `@login_required`                |
+| 7  | Web Güvenlik               | Adem Alperen Arda(220201048)| `feature-security` | CSRF, `@login_required`                |
 | 8  | 3. Parti Kütüphaneler      | Adem Alperen Arda          | `feature-extension` | `ImageField`, `Paginator`, `send_mail` |
 | 9  | Sunum Katmanı (UI)         | Oğulcan Alınlı (220201152) | `feature-ui`        | Bootstrap ile responsive arayüz        |
 | 10 | AI Destekli Araç Asistanı  | Oğulcan Alınlı             | `feature-ai`        | Together.ai entegrasyonu               |
