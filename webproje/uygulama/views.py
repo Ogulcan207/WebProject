@@ -523,7 +523,7 @@ def ai_chat(request):
             response = requests.post(
                 "https://api.together.xyz/v1/chat/completions",
                 headers={
-                    "Authorization": "Bearer tgp_v1_H6cNgXYCAvQGDNGODekGm11HfptE4sFsGkOYEUVnQ7Q",
+                    "Authorization": "##",
                     "Content-Type": "application/json"
                 },
                 json={
